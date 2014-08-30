@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
-from libmproxy.proxy.config import ProxyConfig
-from libmproxy.proxy.server import ProxyServer
-from libmproxy import controller, cmdline
+from libmproxy import controller, proxy
 import os
+
+import re
+import json
 
 class TestMaster(controller.Master):
     def __init__(self, server):
@@ -22,8 +23,6 @@ class TestMaster(controller.Master):
         #     self.stickyhosts[hid] = msg.headers["cookie"]
         # elif hid in self.stickyhosts:
         #     msg.headers["cookie"] = self.stickyhosts[hid]
-        print("request:", msg.headers)
-        print(msg)
         msg.reply()
         return msg
 
@@ -31,15 +30,23 @@ class TestMaster(controller.Master):
         #hid = (msg.request.host, msg.request.port)
         # if msg.headers["set-cookie"]:
         #     self.stickyhosts[hid] = msg.headers["set-cookie"]
-        print("response:", msg.headers)
-        print(msg)
+	print(msg.headers["Content-Type"])
+        try:
+            if re.search("text/javascript", msg.headers["Content-Type"][0]):
+                #print("response:", msg.headers)
+                #print(msg)
+                js = json.loads(msg.get_decoded_content())
+                print(json.dumps(js, sort_keys=True, indent=4).split("\n"))
+                #print(msg.get_decoded_content())
+        except Exception, e:
+                print(e)
         msg.reply()
         return msg
 
-
-config = ProxyConfig(
-#    cacert = os.path.expanduser("~/.mitmproxy/mitmproxy-ca.pem"),
+config = proxy.ProxyConfig(
+    cacert = os.path.expanduser("~/.mitmproxy/mitmproxy-ca.pem")
 )
-server = ProxyServer(config, 8080, '127.0.0.1')
+
+server = proxy.ProxyServer(config, 12345, '127.0.0.1')
 m = TestMaster(server)
 m.run()
