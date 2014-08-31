@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-from libmproxy import controller, proxy
+from libmproxy.proxy.config import ProxyConfig
+from libmproxy.proxy.server import ProxyServer
+from libmproxy import controller, cmdline
 import os
 
 import re
@@ -43,10 +45,11 @@ class TestMaster(controller.Master):
         msg.reply()
         return msg
 
-config = proxy.ProxyConfig(
-    cacert = os.path.expanduser("~/.mitmproxy/mitmproxy-ca.pem")
+
+config = ProxyConfig(
+#    cacert = os.path.expanduser("~/.mitmproxy/mitmproxy-ca.pem"),
 )
 
-server = proxy.ProxyServer(config, 12345, '127.0.0.1')
+server = ProxyServer(config, 12345, '127.0.0.1')
 m = TestMaster(server)
 m.run()
