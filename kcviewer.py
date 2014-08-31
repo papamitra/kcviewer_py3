@@ -1,8 +1,8 @@
 #!/usr/bin/env python2
 
-from PyQt5.QtCore import Qt, QUrl, QSettings
+from PyQt5.QtCore import Qt, QUrl, QSettings, QIODevice, QFile
 from PyQt5.QtWidgets import (QAction, QApplication, QWidget)
-from PyQt5.QtNetwork import QNetworkProxy, QNetworkAccessManager
+from PyQt5.QtNetwork import QNetworkProxy, QNetworkAccessManager, QSslConfiguration, QSslCertificate, QSsl
 from PyQt5.QtWebKitWidgets import QWebView
 from PyQt5 import QtWebKit, QtNetwork
 
@@ -14,6 +14,19 @@ class ProxyAccessManager(QNetworkAccessManager):
     def __init__(self,parent):
         super(ProxyAccessManager, self).__init__(parent)
 
+        ssl_config = QSslConfiguration.defaultConfiguration()
+        ssl_config.setProtocol(QSsl.SecureProtocols)
+
+        certs = ssl_config.caCertificates()
+
+        cert_file = QFile("/home/insight/.mitmproxy/mitmproxy-ca-cert.pem")
+        cert_file.open(QIODevice.ReadOnly)
+        cert = QSslCertificate(cert_file)
+        certs.append(cert)
+
+        ssl_config.setCaCertificates(certs)
+        QSslConfiguration.setDefaultConfiguration(ssl_config)
+
         print("NetworkAccessManager")
         proxy = QNetworkProxy()
         proxy.setType(QNetworkProxy.HttpProxy);
@@ -22,15 +35,6 @@ class ProxyAccessManager(QNetworkAccessManager):
         #QNetworkProxy.setApplicationProxy(proxy);
         self.setProxy(proxy)
 
-        self.sslErrors.connect(self.handle_ssl_errors)
-
-    def handle_ssl_errors(self, reply, errors):
-        print("!!!!!!!!!! sslErrors")
-        for err in errors:
-            print(err)
-
-        reply.ignoreSslErrors()
-        return reply
 
 class KCView(QWidget):
     def __init__(self, url):
