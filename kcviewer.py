@@ -46,6 +46,14 @@ class KCView(QWidget):
         am = ProxyAccessManager(self)
         self.view.page().setNetworkAccessManager(am)
 
+        web_setting = QtWebKit.QWebSettings.globalSettings()
+        web_setting.setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
+        #web_setting.setAttribute(QtWebKit.QWebSettings.DnsPrefetchEnabled, True)
+        web_setting.setAttribute(QtWebKit.QWebSettings.JavascriptEnabled, True)
+        #web_setting.setAttribute(QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
+        #web_setting.setAttribute(QtWebKit.QWebSettings.OfflineStorageDatabaseEnabled, True)
+        #web_setting.setAttribute(QtWebKit.QWebSettings.LocalStorageEnabled, True)
+
         """
         # Load cookies
         user_data_dir = self.app_dirs.user_data_dir
@@ -58,13 +66,6 @@ class KCView(QWidget):
         self.settings = QSettings(user_data_dir + '/config', QSettings.NativeFormat)
 
         self.view.page().networkAccessManager().setCookieJar(self.cookies)
-
-        web_setting = QtWebKit.QWebSettings.globalSettings()
-        web_setting.setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
-        web_setting.setAttribute(QtWebKit.QWebSettings.DnsPrefetchEnabled, True)
-        web_setting.setAttribute(QtWebKit.QWebSettings.JavascriptEnabled, True)
-        web_setting.setAttribute(QtWebKit.QWebSettings.OfflineStorageDatabaseEnabled, True)
-        web_setting.setAttribute(QtWebKit.QWebSettings.LocalStorageEnabled, True)
 
         # Prepare cache dir
         cache_path = self.app_dirs.user_cache_dir
@@ -84,7 +85,7 @@ class KCView(QWidget):
             os.makedirs(offlineWebApplicationCachePath)
         QtWebKit.QWebSettings.setOfflineWebApplicationCachePath(offlineWebApplicationCachePath)
         """
-
+        
         self.view.load(url)
         self.view.show()
 
