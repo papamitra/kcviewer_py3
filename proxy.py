@@ -6,12 +6,11 @@ from libmproxy import controller, cmdline
 import os
 
 import re
-import json
+import simplejson
 
-class TestMaster(controller.Master):
+class KCMaster(controller.Master):
     def __init__(self, server):
         controller.Master.__init__(self, server)
-        #self.stickyhosts = {}
 
     def run(self):
         try:
@@ -20,36 +19,38 @@ class TestMaster(controller.Master):
             self.shutdown()
 
     def handle_request(self, msg):
-        #hid = (msg.host, msg.port)
-        # if msg.headers["cookie"]:
-        #     self.stickyhosts[hid] = msg.headers["cookie"]
-        # elif hid in self.stickyhosts:
-        #     msg.headers["cookie"] = self.stickyhosts[hid]
         msg.reply()
         return msg
 
     def handle_response(self, msg):
-        #hid = (msg.request.host, msg.request.port)
-        # if msg.headers["set-cookie"]:
-        #     self.stickyhosts[hid] = msg.headers["set-cookie"]
 	print(msg.headers["Content-Type"])
+        """
         try:
-            if re.search("text/javascript", msg.headers["Content-Type"][0]):
-                #print("response:", msg.headers)
-                #print(msg)
-                js = json.loads(msg.get_decoded_content())
-                print(json.dumps(js, sort_keys=True, indent=4).split("\n"))
+            if re.search("application/json", msg.headers["Content-Type"][0]):
+                print("response:", msg.headers)
+                print("msg.content ----------------")
+                print(msg.content)
+                print("decode json -----------------")
+                js = simplejson.loads(msg.content)
+                print(simplejson.dumps(js, sort_keys=True, indent=4).split("\n"))
                 #print(msg.get_decoded_content())
+            elif re.search("text/plain", msg.headers["Content-Type"][0]):
+                if 0 == msg.content.index("svdata="):
+                    js = simplejson.loads(msg.content[7:])
+                    print(simplejson.dumps(js, sort_keys=True, indent=4).split("\n"))
+                    
         except Exception, e:
                 print(e)
+        """
         msg.reply()
         return msg
 
 
 config = ProxyConfig(
+    confdir = "./cert"
 #    cacert = os.path.expanduser("~/.mitmproxy/mitmproxy-ca.pem"),
 )
 
 server = ProxyServer(config, 12345, '127.0.0.1')
-m = TestMaster(server)
+m = KCMaster(server)
 m.run()
