@@ -54,7 +54,7 @@ class KCView(QWidget):
         self.view.load(url)
         self.view.show()
 
-if __name__ == '__main__':
+def main():
 
     import sys
 
@@ -71,4 +71,4 @@ if __name__ == '__main__':
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
-    main()    
+    main()
