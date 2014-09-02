@@ -23,7 +23,7 @@ class KCMaster(controller.Master):
         return msg
 
     def handle_response(self, msg):
-	print(msg.headers["Content-Type"])
+        print(msg.headers["Content-Type"])
         """
         try:
             if re.search("application/json", msg.headers["Content-Type"][0]):
@@ -38,19 +38,29 @@ class KCMaster(controller.Master):
                 if 0 == msg.content.index("svdata="):
                     js = simplejson.loads(msg.content[7:])
                     print(simplejson.dumps(js, sort_keys=True, indent=4).split("\n"))
-                    
+
         except Exception, e:
                 print(e)
         """
         msg.reply()
         return msg
 
+class KCProxy(object):
+    def __init__(self):
+        config = ProxyConfig(
+            confdir = "./cert"
+            #    cacert = os.path.expanduser("~/.mitmproxy/mitmproxy-ca.pem"),
+        )
+        server = ProxyServer(config, 12345, '127.0.0.1')
+        self.master = KCMaster(server)
 
-config = ProxyConfig(
-    confdir = "./cert"
-#    cacert = os.path.expanduser("~/.mitmproxy/mitmproxy-ca.pem"),
-)
+    def run(self):
+        self.master.run()
 
-server = ProxyServer(config, 12345, '127.0.0.1')
-m = KCMaster(server)
-m.run()
+    def shutdown(self):
+        self.master.shutdown()
+
+if __name__ == '__main__':
+    proxy = KCProxy()
+    proxy.run()
+
