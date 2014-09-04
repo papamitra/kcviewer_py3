@@ -54,6 +54,9 @@ class KCView(QWidget):
         self.view.load(url)
         self.view.show()
 
+    def on_receive(self, msg):
+        print('kcview:', msg)
+
 def main():
 
     import sys
