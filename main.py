@@ -14,7 +14,7 @@ class ProxyThread(QThread):
 
     def __init__(self, parent=None):
         super(ProxyThread, self).__init__(parent)
-        self.proxy = kcproxy.KCProxy(self.on_receive)
+        self.proxy = kcproxy.KCProxy(on_receive = self.on_receive)
 
     def run(self):
         self.proxy.run()
@@ -25,9 +25,6 @@ class ProxyThread(QThread):
     def stop(self):
         self.proxy.shutdown()
         self.wait()
-
-def closed():
-    print("closed")
 
 if __name__ == '__main__':
     import sys
