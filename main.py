@@ -9,6 +9,7 @@ import threading
 import kcproxy
 import kcviewer
 import Queue
+from kcsapi import KcsApi
 
 class ProxyThread(threading.Thread):
     #receive_msg = pyqtSignal(QVariant)
@@ -24,8 +25,9 @@ class ProxyThread(threading.Thread):
         self.proxy.run()
 
     def on_receive(self, msg):
-        #self.receive_msg.emit(msg)
-        pass
+        api_msg = KcsApi.parse_respose(msg)
+        if api_msg:
+            self.input_queue.put(api_msg)
 
     def stop(self):
         self.proxy.shutdown()
@@ -39,11 +41,14 @@ class ApiThread(threading.Thread):
         self.input_queue = intput_queue
 
     def run(self):
+        kcsapi = KcsApi()
         print('ApiThread start...')
         while True:
             d = self.input_queue.get()
             if d is None:
                 break
+            kcsapi.dispatch(d)
+
         print('ApiThread ...done')
 
 if __name__ == '__main__':

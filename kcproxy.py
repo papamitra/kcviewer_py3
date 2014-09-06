@@ -25,21 +25,7 @@ class KCMaster(controller.Master):
 
     def handle_response(self, msg):
         if self.on_receive:
-            self.on_receive(msg.headers["Content-Type"])
-
-        """
-        try:
-            if re.search("application/json", msg.headers["Content-Type"][0]):
-                js = simplejson.loads(msg.content)
-                print(simplejson.dumps(js, sort_keys=True, indent=4).split("\n"))
-                #print(msg.get_decoded_content())
-            elif re.search("text/plain", msg.headers["Content-Type"][0]):
-                if 0 == msg.content.index("svdata="):
-                    js = simplejson.loads(msg.content[7:])
-
-        except Exception, e:
-                print(e)
-        """
+            self.on_receive(msg)
 
         msg.reply()
         return msg
