@@ -44,6 +44,9 @@ class KcsApi(object):
             self.con.execute(CREATE_MASTER_SHIP_TABLE)
             self.mst_ship_cols = get_cols(self.con, 'api_mst_ship')
 
+        self.tables = [r[0] for r in self.con.execute(u'select name from sqlite_master where type="table";')]
+        self.table_cols = {t:get_cols(self.con, t) for t in self.tables}
+
     @staticmethod
     def parse_respose(msg):
         try:
@@ -63,6 +66,17 @@ class KcsApi(object):
         sql = u"insert into msg values (datetime('now'), ? , ?)"
         self.debug_con.execute(sql, (msg.path, sqlite3.Binary(pickle.dumps(msg.json))))
 
+    def insert_or_replace(self, table_name, data, conv={}):
+        cols = self.table_cols[table_name]
+        sql = u"""
+        insert or replace into {table_name} ({col_names}) values ({val_holders})
+        """.format(table_name  = table_name,
+                   col_names   = ','.join(cols),
+                   val_holders = ','.join(['?'] * len(cols)))
+
+        self.con.executemany(sql,
+                             [[d[c] if not c in conv else conv[c](d) for c in cols] for d in data])
+
     def dispatch(self, msg, debug_out=True):
         if debug_out:
             self.debug_out(msg)
@@ -71,10 +85,7 @@ class KcsApi(object):
             try:
                 with self.con:
                     records = msg.json['api_data']['api_mst_ship']
-                    self.con.executemany(u'insert into api_mst_ship (%s) values (%s)' % \
-                                         (','.join(self.mst_ship_cols),
-                                         ','.join(['?'] * len(self.mst_ship_cols))),
-                                         [[r[c] for c in self.mst_ship_cols] for r in records])
+                    self.insert_or_replace('api_mst_ship', records)
             except Exception, e:
                 print("dispatch failed: " + str(e))
 
