@@ -7,6 +7,9 @@ import re
 import simplejson
 import UserList
 
+def intlist_to_text(key):
+    return lambda d: ';'.join(str(i) for i in d[key])
+
 DEBUG_DB = 'kscapi_debug.db'
 CREATE_MESSAGE_TABLE = u"""
 create table if not exists msg(
