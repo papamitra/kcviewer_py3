@@ -5,6 +5,7 @@ import sqlite3
 import pickle
 import re
 import simplejson
+import UserList
 
 DEBUG_DB = 'kscapi_debug.db'
 CREATE_MESSAGE_TABLE = u"""
@@ -16,12 +17,30 @@ create table if not exists msg(
 """
 
 DATA_DB = 'data.db'
+
 CREATE_MASTER_SHIP_TABLE = u"""
 create table if not exists api_mst_ship(
   api_id integer primary key,
   api_name text not null
 );
 """
+
+CREATE_SHIP_TABLE = u"""
+create table if not exists api_ship(
+  api_id      integer primary key,
+  api_ship_id integer,
+  api_lv      integer,
+  api_bull    integer,
+  api_fuel    integer,
+  api_cond    integer,
+  api_nowhp   integer,
+  api_maxhp   integer,
+  api_slot    text,
+  foreign key(api_ship_id) references api_mst_ship(api_id)
+);
+"""
+
+ADAPT_SHIP = {'api_slot': lambda d: ';'.join(str(i) for i in d['api_slot'])}
 
 def get_cols(con, table_name):
     cur = con.cursor()
@@ -42,7 +61,7 @@ class KcsApi(object):
         self.con = sqlite3.connect(DATA_DB)
         with self.con:
             self.con.execute(CREATE_MASTER_SHIP_TABLE)
-            self.mst_ship_cols = get_cols(self.con, 'api_mst_ship')
+            self.con.execute(CREATE_SHIP_TABLE)
 
         self.tables = [r[0] for r in self.con.execute(u'select name from sqlite_master where type="table";')]
         self.table_cols = {t:get_cols(self.con, t) for t in self.tables}
@@ -96,6 +115,14 @@ class KcsApi(object):
                     self.insert_or_replace('api_mst_ship', records)
             except Exception, e:
                 print("dispatch failed: " + str(e))
+
+        elif msg.path == u'/kcsapi/api_port/port':
+            try:
+                with self.con:
+                    data = msg.json['api_data']['api_ship']
+                    self.insert_or_replace('api_ship', data, ADAPT_SHIP)
+            except Exception, e:
+                print("%s failed: %s" % (msg.path, str(e)))
 
 # for debug
 def parse_debug_db(where = None):
