@@ -43,7 +43,19 @@ create table if not exists api_ship(
 );
 """
 
-ADAPT_SHIP = {'api_slot': lambda d: ';'.join(str(i) for i in d['api_slot'])}
+ADAPT_SHIP = {'api_slot': intlist_to_text('api_slot')}
+
+CREATE_DECK_PORT_TABLE = u"""
+create table if not exists api_deck_port(
+  api_id      integer primary key,
+  api_mission text,
+  api_name    text,
+  api_ship    text
+);
+"""
+
+ADAPT_DECK_PORT = {'api_mission' : intlist_to_text('api_mission'),
+                   'api_ship'    : intlist_to_text('api_ship')}
 
 def get_cols(con, table_name):
     cur = con.cursor()
@@ -65,6 +77,7 @@ class KcsApi(object):
         with self.con:
             self.con.execute(CREATE_MASTER_SHIP_TABLE)
             self.con.execute(CREATE_SHIP_TABLE)
+            self.con.execute(CREATE_DECK_PORT_TABLE)
 
         self.tables = [r[0] for r in self.con.execute(u'select name from sqlite_master where type="table";')]
         self.table_cols = {t:get_cols(self.con, t) for t in self.tables}
@@ -122,8 +135,12 @@ class KcsApi(object):
         elif msg.path == u'/kcsapi/api_port/port':
             try:
                 with self.con:
-                    data = msg.json['api_data']['api_ship']
-                    self.insert_or_replace('api_ship', data, ADAPT_SHIP)
+                    ships = msg.json['api_data']['api_ship']
+                    self.insert_or_replace('api_ship', ships, ADAPT_SHIP)
+
+                    port =  msg.json['api_data']['api_deck_port']
+                    self.insert_or_replace('api_deck_port', port, ADAPT_DECK_PORT)
+
             except Exception, e:
                 print("%s failed: %s" % (msg.path, str(e)))
 
