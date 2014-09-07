@@ -49,6 +49,8 @@ class KcsApi(object):
 
     @staticmethod
     def parse_respose(msg):
+        """ http raw response to ApiMessage"""
+
         try:
             if re.search("application/json", msg.headers["Content-Type"][0]):
                 js = simplejson.loads(msg.content)
@@ -63,10 +65,14 @@ class KcsApi(object):
         return None
 
     def debug_out(self, msg):
+        """ insert ApiMessage into debug DB """
+
         sql = u"insert into msg values (datetime('now'), ? , ?)"
         self.debug_con.execute(sql, (msg.path, sqlite3.Binary(pickle.dumps(msg.json))))
 
     def insert_or_replace(self, table_name, data, conv={}):
+        """ insert json data into table with data converting if needed """
+
         cols = self.table_cols[table_name]
         sql = u"""
         insert or replace into {table_name} ({col_names}) values ({val_holders})
@@ -78,6 +84,8 @@ class KcsApi(object):
                              [[d[c] if not c in conv else conv[c](d) for c in cols] for d in data])
 
     def dispatch(self, msg, debug_out=True):
+        """ dispatch api message """
+
         if debug_out:
             self.debug_out(msg)
 
