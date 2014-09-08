@@ -57,6 +57,20 @@ create table if not exists api_deck_port(
 ADAPT_DECK_PORT = {'api_mission' : intlist_to_text('api_mission'),
                    'api_ship'    : intlist_to_text('api_ship')}
 
+CREATE_SHIP_VIEW = u"""
+create view if not exists ship_view as
+select api_ship.api_id        as id,
+       api_mst_ship.api_name  as name,
+       api_ship.api_lv        as lv,
+       api_ship.api_fuel      as fuel,
+       api_ship.api_bull      as bull,
+       api_ship.api_cond      as cond,
+       api_ship.api_nowhp     as nowhp,
+       api_ship.api_maxhp     as maxhp,
+       api_ship.api_slot      as slot
+from api_ship left join api_mst_ship on api_ship.api_ship_id == api_mst_ship.api_id;
+"""
+
 def get_cols(con, table_name):
     cur = con.cursor()
     cur.execute(u'select * from ' + table_name)
@@ -78,6 +92,7 @@ class KcsApi(object):
             self.con.execute(CREATE_MASTER_SHIP_TABLE)
             self.con.execute(CREATE_SHIP_TABLE)
             self.con.execute(CREATE_DECK_PORT_TABLE)
+            self.con.execute(CREATE_SHIP_VIEW)
 
         self.tables = [r[0] for r in self.con.execute(u'select name from sqlite_master where type="table";')]
         self.table_cols = {t:get_cols(self.con, t) for t in self.tables}
