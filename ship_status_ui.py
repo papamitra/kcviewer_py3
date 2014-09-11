@@ -32,7 +32,8 @@ class DeckStatus(QWidget):
             r = cur.fetchone()
             ui.ship_name.setText(r['name'])
             ui.ship_hp.setText("HP: %d / %d" % (r['nowhp'], r['maxhp']))
-            ui.hp_bar.setValue(r['nowhp'] / r['maxhp'])
+            ui.hp_bar.setValue(float(r['nowhp']) / float(r['maxhp']) * 100)
+            ui.ship_lv.setText("Lv: %d" % r['lv'])
 
 class ShipStatus(QWidget,Ui_Form):
     def __init__(self, parent=None):

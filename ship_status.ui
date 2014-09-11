@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>258</width>
-    <height>60</height>
+    <height>72</height>
    </rect>
   </property>
   <property name="font">
@@ -25,7 +25,7 @@
      <property name="font">
       <font>
        <family>Serif</family>
-       <pointsize>10</pointsize>
+       <pointsize>12</pointsize>
       </font>
      </property>
      <property name="text">
@@ -34,9 +34,35 @@
     </widget>
    </item>
    <item>
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QLabel" name="ship_lv">
+     <property name="text">
+      <string>Lv</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QVBoxLayout" name="hp_layout">
      <item>
       <widget class="QLabel" name="ship_hp">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="font">
         <font>
          <family>Serif</family>
@@ -44,7 +70,7 @@
         </font>
        </property>
        <property name="text">
-        <string>HP</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;HP: &lt;/span&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;100&lt;/span&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt; /105&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
@@ -58,7 +84,7 @@
 
 QProgressBar::chunk{
     background-color: lightgreen;
-    width: 20px;
+    width: 10px;
 }</string>
        </property>
        <property name="value">
@@ -72,9 +98,9 @@ QProgressBar::chunk{
     </layout>
    </item>
   </layout>
-  <zorder>horizontalLayoutWidget</zorder>
   <zorder>ship_name</zorder>
-  <zorder>verticalLayoutWidget</zorder>
+  <zorder>horizontalSpacer</zorder>
+  <zorder>ship_lv</zorder>
  </widget>
  <resources/>
  <connections/>
