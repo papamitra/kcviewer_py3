@@ -7,9 +7,6 @@ import re
 import simplejson
 import UserList
 
-def intlist_to_text(key):
-    return lambda d: ';'.join(str(i) for i in d[key])
-
 DEBUG_DB = 'kscapi_debug.db'
 CREATE_MESSAGE_TABLE = u"""
 create table if not exists msg(
@@ -38,24 +35,19 @@ create table if not exists api_ship(
   api_cond    integer,
   api_nowhp   integer,
   api_maxhp   integer,
-  api_slot    text,
+  api_slot    IntList,
   foreign key(api_ship_id) references api_mst_ship(api_id)
 );
 """
-
-ADAPT_SHIP = {'api_slot': intlist_to_text('api_slot')}
 
 CREATE_DECK_PORT_TABLE = u"""
 create table if not exists api_deck_port(
   api_id      integer primary key,
   api_mission text,
   api_name    text,
-  api_ship    text
+  api_ship    IntList
 );
 """
-
-ADAPT_DECK_PORT = {'api_mission' : intlist_to_text('api_mission'),
-                   'api_ship'    : intlist_to_text('api_ship')}
 
 CREATE_SHIP_VIEW = u"""
 create view if not exists ship_view as
@@ -70,6 +62,10 @@ select api_ship.api_id        as id,
        api_ship.api_slot      as slot
 from api_ship left join api_mst_ship on api_ship.api_ship_id == api_mst_ship.api_id;
 """
+
+IntList = list
+sqlite3.register_adapter(IntList, lambda l: ';'.join([str(i) for i in l]))
+sqlite3.register_converter("IntList", lambda s: [int(i) for i in s.split(';')])
 
 def get_cols(con, table_name):
     cur = con.cursor()
@@ -151,10 +147,10 @@ class KcsApi(object):
             try:
                 with self.con:
                     ships = msg.json['api_data']['api_ship']
-                    self.insert_or_replace('api_ship', ships, ADAPT_SHIP)
+                    self.insert_or_replace('api_ship', ships)
 
                     port =  msg.json['api_data']['api_deck_port']
-                    self.insert_or_replace('api_deck_port', port, ADAPT_DECK_PORT)
+                    self.insert_or_replace('api_deck_port', port)
 
             except Exception, e:
                 print("%s failed: %s" % (msg.path, str(e)))
