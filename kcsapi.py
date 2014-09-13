@@ -5,7 +5,7 @@ import sqlite3
 import pickle
 import re
 import simplejson
-import UserList
+import utils
 
 DEBUG_DB = 'kscapi_debug.db'
 CREATE_MESSAGE_TABLE = u"""
@@ -43,9 +43,17 @@ create table if not exists api_ship(
 CREATE_DECK_PORT_TABLE = u"""
 create table if not exists api_deck_port(
   api_id      integer primary key,
-  api_mission text,
+  api_mission IntList,
   api_name    text,
   api_ship    IntList
+);
+"""
+
+CREATE_MST_SLOTITEM_TABLE = u"""
+create table if not exists api_mst_slotitem(
+  api_id     integer primary key,
+  api_name   text,
+  api_type   IntList
 );
 """
 
@@ -62,10 +70,6 @@ select api_ship.api_id        as id,
        api_ship.api_slot      as slot
 from api_ship left join api_mst_ship on api_ship.api_ship_id == api_mst_ship.api_id;
 """
-
-IntList = list
-sqlite3.register_adapter(IntList, lambda l: ';'.join([str(i) for i in l]))
-sqlite3.register_converter("IntList", lambda s: [int(i) for i in s.split(';')])
 
 def get_cols(con, table_name):
     cur = con.cursor()
