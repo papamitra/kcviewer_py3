@@ -5,10 +5,7 @@ import sqlite3
 import pickle
 import re
 import simplejson
-import UserList
-
-def intlist_to_text(key):
-    return lambda d: ';'.join(str(i) for i in d[key])
+import utils
 
 DEBUG_DB = 'kscapi_debug.db'
 CREATE_MESSAGE_TABLE = u"""
@@ -21,7 +18,7 @@ create table if not exists msg(
 
 DATA_DB = 'data.db'
 
-CREATE_MASTER_SHIP_TABLE = u"""
+CREATE_MST_SHIP_TABLE = u"""
 create table if not exists api_mst_ship(
   api_id integer primary key,
   api_name text not null
@@ -38,24 +35,36 @@ create table if not exists api_ship(
   api_cond    integer,
   api_nowhp   integer,
   api_maxhp   integer,
-  api_slot    text,
+  api_slot    IntList,
   foreign key(api_ship_id) references api_mst_ship(api_id)
 );
 """
 
-ADAPT_SHIP = {'api_slot': intlist_to_text('api_slot')}
-
 CREATE_DECK_PORT_TABLE = u"""
 create table if not exists api_deck_port(
   api_id      integer primary key,
-  api_mission text,
+  api_mission IntList,
   api_name    text,
-  api_ship    text
+  api_ship    IntList
 );
 """
 
-ADAPT_DECK_PORT = {'api_mission' : intlist_to_text('api_mission'),
-                   'api_ship'    : intlist_to_text('api_ship')}
+CREATE_MST_SLOTITEM_TABLE = u"""
+create table if not exists api_mst_slotitem(
+  api_id     integer primary key,
+  api_name   text,
+  api_type   IntList
+);
+"""
+
+CREATE_SLOTITEM_TABLE = u"""
+create table if not exists api_slotitem(
+  api_id          integer primary key,
+  api_locked      integer,
+  api_slotitem_id integer,
+  foreign key(api_slotitem_id) references api_mst_slotitem(api_id)
+);
+"""
 
 CREATE_SHIP_VIEW = u"""
 create view if not exists ship_view as
@@ -69,6 +78,14 @@ select api_ship.api_id        as id,
        api_ship.api_maxhp     as maxhp,
        api_ship.api_slot      as slot
 from api_ship left join api_mst_ship on api_ship.api_ship_id == api_mst_ship.api_id;
+"""
+
+CREATE_SLOTITEM_VIEW = u"""
+create view if not exists slotitem_view as
+select api_slotitem.api_id        as id,
+       api_mst_slotitem.api_name  as name,
+       api_mst_slotitem.api_type  as type
+from api_slotitem left join api_mst_slotitem on api_slotitem.api_slotitem_id == api_mst_slotitem.api_id;
 """
 
 def get_cols(con, table_name):
@@ -89,10 +106,14 @@ class KcsApi(object):
 
         self.con = sqlite3.connect(DATA_DB)
         with self.con:
-            self.con.execute(CREATE_MASTER_SHIP_TABLE)
+            self.con.execute(CREATE_MST_SHIP_TABLE)
             self.con.execute(CREATE_SHIP_TABLE)
             self.con.execute(CREATE_DECK_PORT_TABLE)
+            self.con.execute(CREATE_MST_SLOTITEM_TABLE)
             self.con.execute(CREATE_SHIP_VIEW)
+            self.con.execute(CREATE_MST_SLOTITEM_TABLE)
+            self.con.execute(CREATE_SLOTITEM_TABLE)
+            self.con.execute(CREATE_SLOTITEM_VIEW)
 
         self.tables = [r[0] for r in self.con.execute(u'select name from sqlite_master where type="table";')]
         self.table_cols = {t:get_cols(self.con, t) for t in self.tables}
@@ -142,20 +163,23 @@ class KcsApi(object):
         if msg.path == u'/kcsapi/api_start2':
             try:
                 with self.con:
-                    records = msg.json['api_data']['api_mst_ship']
-                    self.insert_or_replace('api_mst_ship', records)
+                    self.insert_or_replace('api_mst_ship', msg.json['api_data']['api_mst_ship'])
+                    self.insert_or_replace('api_mst_slotitem', msg.json['api_data']['api_mst_slotitem'])
             except Exception, e:
                 print("dispatch failed: " + str(e))
 
         elif msg.path == u'/kcsapi/api_port/port':
             try:
                 with self.con:
-                    ships = msg.json['api_data']['api_ship']
-                    self.insert_or_replace('api_ship', ships, ADAPT_SHIP)
+                    self.insert_or_replace('api_ship', msg.json['api_data']['api_ship'])
+                    self.insert_or_replace('api_deck_port', msg.json['api_data']['api_deck_port'])
+            except Exception, e:
+                print("%s failed: %s" % (msg.path, str(e)))
 
-                    port =  msg.json['api_data']['api_deck_port']
-                    self.insert_or_replace('api_deck_port', port, ADAPT_DECK_PORT)
-
+        elif msg.path == u'/kcsapi/api_get_member/slot_item':
+            try:
+                with self.con:
+                    self.insert_or_replace('api_slotitem', msg.json['api_data'])
             except Exception, e:
                 print("%s failed: %s" % (msg.path, str(e)))
 
