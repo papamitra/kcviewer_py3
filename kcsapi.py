@@ -80,6 +80,14 @@ select api_ship.api_id        as id,
 from api_ship left join api_mst_ship on api_ship.api_ship_id == api_mst_ship.api_id;
 """
 
+CREATE_SLOTITEM_VIEW = u"""
+create view if not exists slotitem_view as
+select api_slotitem.api_id        as id,
+       api_mst_slotitem.api_name  as name,
+       api_mst_slotitem.api_type  as type
+from api_slotitem left join api_mst_slotitem on api_slotitem.api_slotitem_id == api_mst_slotitem.api_id;
+"""
+
 def get_cols(con, table_name):
     cur = con.cursor()
     cur.execute(u'select * from ' + table_name)
@@ -105,6 +113,7 @@ class KcsApi(object):
             self.con.execute(CREATE_SHIP_VIEW)
             self.con.execute(CREATE_MST_SLOTITEM_TABLE)
             self.con.execute(CREATE_SLOTITEM_TABLE)
+            self.con.execute(CREATE_SLOTITEM_VIEW)
 
         self.tables = [r[0] for r in self.con.execute(u'select name from sqlite_master where type="table";')]
         self.table_cols = {t:get_cols(self.con, t) for t in self.tables}
