@@ -4,9 +4,7 @@ import sqlite3
 
 from ship_status import Ui_Form
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QSizePolicy
-
-def parse_db_intlist(l):
-    return [int(i) for i in l.split(';')]
+import utils
 
 class DeckStatus(QWidget):
     def __init__(self, con):
@@ -24,10 +22,15 @@ class DeckStatus(QWidget):
 
     def on_status_change(self):
         cur = self.con.cursor()
-        cur.execute(u'select * from api_deck_port where api_id == 1;')
-        ship_ids = parse_db_intlist(cur.fetchone()['api_ship'])
+        cur.execute(u'select * from api_deck_port where api_id == 2;')
+        ship_ids = cur.fetchone()['api_ship']
+        print(ship_ids)
         for (i,ship_id) in enumerate(ship_ids):
             ui = self.ui_list[i]
+            if -1 == ship_id:
+                ui.hide()
+                continue
+
             cur.execute(u'select * from ship_view where id == ?;', [ship_id])
             r = cur.fetchone()
             ui.ship_name.setText(r['name'])
@@ -44,7 +47,7 @@ class ShipStatus(QWidget,Ui_Form):
 if __name__ == '__main__':
     import sys
 
-    con = sqlite3.connect('data.db')
+    con = sqlite3.connect('data.db', detect_types = sqlite3.PARSE_DECLTYPES)
 
     app = QApplication(sys.argv)
 
