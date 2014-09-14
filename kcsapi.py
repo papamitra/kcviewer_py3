@@ -104,7 +104,7 @@ class KcsApi(object):
         self.debug_con = sqlite3.connect(DEBUG_DB, isolation_level=None)
         self.debug_con.execute(CREATE_MESSAGE_TABLE)
 
-        self.con = sqlite3.connect(DATA_DB)
+        self.con = utils.connect_db()
         with self.con:
             self.con.execute(CREATE_MST_SHIP_TABLE)
             self.con.execute(CREATE_SHIP_TABLE)
@@ -185,7 +185,7 @@ class KcsApi(object):
 
 # for debug
 def parse_debug_db(where = None):
-    con = sqlite3.connect(DEBUG_DB)
+    con = utils.connect_db()
     c = con.cursor()
     c.execute('select * from msg' + (where if where else ''))
     debug_data = [(row[0], row[1], pickle.loads(str(row[2]))) for row in c]
