@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtCore import Qt, QUrl, pyqtSlot, QSettings, QIODevice, QFile, QMetaObject
-from PyQt5.QtWidgets import (QAction, QApplication, QWidget)
+from PyQt5.QtWidgets import (QAction, QApplication, QWidget, QMainWindow)
 from PyQt5.QtNetwork import QNetworkProxy, QNetworkProxyFactory, QNetworkAccessManager, QSslConfiguration, QSslCertificate, QSsl
 from PyQt5.QtWebKitWidgets import QWebView
 from PyQt5 import QtWebKit, QtNetwork
 
 import simplejson
 import os
+from mainwindow_ui import Ui_MainWindow
 
 class ProxyAccessManager(QNetworkAccessManager):
     def __init__(self,parent):
@@ -35,13 +36,13 @@ class ProxyAccessManager(QNetworkAccessManager):
         #QNetworkProxy.setApplicationProxy(proxy);
         self.setProxy(proxy)
 
-class KCView(QWidget):
+class KCView(QMainWindow, Ui_MainWindow):
     def __init__(self, url):
         super(KCView, self).__init__()
+        self.setupUi(self)
 
-        self.view = QWebView(self)
         am = ProxyAccessManager(self)
-        self.view.page().setNetworkAccessManager(am)
+        self.webView.page().setNetworkAccessManager(am)
 
         web_setting = QtWebKit.QWebSettings.globalSettings()
         web_setting.setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
@@ -51,8 +52,8 @@ class KCView(QWidget):
         #web_setting.setAttribute(QtWebKit.QWebSettings.OfflineStorageDatabaseEnabled, True)
         #web_setting.setAttribute(QtWebKit.QWebSettings.LocalStorageEnabled, True)
 
-        self.view.load(url)
-        self.view.show()
+        self.webView.load(url)
+        self.webView.show()
 
     def on_receive(self, msg):
         print('kcview:', msg)
