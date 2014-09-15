@@ -10,6 +10,7 @@ import kcproxy
 import kcviewer
 import Queue
 from kcsapi import KcsApi
+import qtsignal
 
 class ProxyThread(threading.Thread):
     #receive_msg = pyqtSignal(QVariant)
@@ -41,6 +42,7 @@ class ApiThread(threading.Thread):
         self.input_queue = intput_queue
 
     def run(self):
+        global signal_emitter
         kcsapi = KcsApi()
         print('ApiThread start...')
         while True:
@@ -48,6 +50,7 @@ class ApiThread(threading.Thread):
             if d is None:
                 break
             kcsapi.dispatch(d)
+            signal_emitter.dispatch(d)
 
         print('ApiThread ...done')
 
@@ -61,10 +64,14 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
 
+    global signal_emitter
+    signal_emitter = qtsignal.Signal()
+
     proxythread = ProxyThread()
     proxythread.start()
 
     browser = kcviewer.KCView(url)
+    signal_emitter.api_port.connect(browser.deckstatus.on_status_change)
 
     #proxythread.receive_msg.connect(browser.on_receive)
 
