@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>258</width>
+    <width>277</width>
     <height>72</height>
    </rect>
   </property>
@@ -67,7 +67,7 @@
    <item>
     <widget class="QLabel" name="ship_lv">
      <property name="text">
-      <string>Lv</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lv &lt;span style=&quot; font-size:16pt;&quot;&gt;99&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
    </item>
@@ -94,6 +94,18 @@
      </item>
      <item>
       <widget class="QProgressBar" name="hp_bar">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>10</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>10</height>
+        </size>
+       </property>
        <property name="styleSheet">
         <string notr="true">QProgressBar{
     border: 1px solid black;
@@ -115,10 +127,18 @@ QProgressBar::chunk{
      </item>
     </layout>
    </item>
+   <item>
+    <widget class="QLabel" name="ship_cond">
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;cond 99&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </item>
   </layout>
   <zorder>ship_name</zorder>
   <zorder>horizontalSpacer</zorder>
   <zorder>ship_lv</zorder>
+  <zorder>ship_cond</zorder>
  </widget>
  <resources/>
  <connections/>
