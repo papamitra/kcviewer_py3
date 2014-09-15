@@ -1,10 +1,12 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sqlite3
 
 from ship_status import Ui_Form
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QSizePolicy
 import utils
+import model
 
 class DeckStatus(QWidget):
     def __init__(self, con):
@@ -21,27 +23,29 @@ class DeckStatus(QWidget):
             self.vbox_layout.addWidget(ui)
 
     def on_status_change(self):
-        cur = self.con.cursor()
-        cur.execute(u'select * from api_deck_port where api_id == 2;')
-        ship_ids = cur.fetchone()['api_ship']
-        print(ship_ids)
-        for (i,ship_id) in enumerate(ship_ids):
+        deck = model.DeckPortInfo(self.con, 2)
+        for (i,ship) in enumerate(deck.ships()):
             ui = self.ui_list[i]
-            if -1 == ship_id:
-                ui.hide()
-                continue
+            ui.set_ship(ship)
 
-            cur.execute(u'select * from ship_view where id == ?;', [ship_id])
-            r = cur.fetchone()
-            ui.ship_name.setText(r['name'])
-            ui.ship_hp.setText("HP: %d / %d" % (r['nowhp'], r['maxhp']))
-            ui.hp_bar.setValue(float(r['nowhp']) / float(r['maxhp']) * 100)
-            ui.ship_lv.setText("Lv: %d" % r['lv'])
+HP_FORMAT = u'<html><head/><body><p><span style=" font-size:16pt;">HP: </span><span style=" font-size:16pt; font-weight:600;">{nowhp}</span><span style=" font-size:16pt;"> /{maxhp}</span></p></body></html>'
+LV_FORMAT = u'<html><head/><body><p>Lv <span style=" font-size:16pt;">{lv}</span></p></body></html>'
+COND_FORMAT= u"""<html><head/><body><p><span style=" font-size:16pt;"><span style=" color:{color};">■</span>{cond}</span><br/><span style=" font-size:10pt;">condition<span></p></body></html>"""
 
 class ShipStatus(QWidget,Ui_Form):
     def __init__(self, parent=None):
         super(ShipStatus, self).__init__(parent)
         self.setupUi(self)
+
+    def set_ship(self, ship):
+        if ship is None:
+            self.hide()
+            return
+        self.ship_name.setText(ship.name)
+        self.ship_hp.setText(HP_FORMAT.format(nowhp=ship.nowhp, maxhp=ship.maxhp))
+        self.hp_bar.setValue(float(ship.nowhp) / float(ship.maxhp) * 100)
+        self.ship_lv.setText(LV_FORMAT.format(lv=ship.lv))
+        self.ship_cond.setText(COND_FORMAT.format(color='#fde95f', cond=ship.cond))
         self.show()
 
 if __name__ == '__main__':
