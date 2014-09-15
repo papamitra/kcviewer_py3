@@ -10,6 +10,11 @@ def connect_db():
     con.row_factory = sqlite3.Row
     return con
 
+def connect_debug_db():
+    con = sqlite3.connect('kcsapi_debug.db', isolation_level=None)
+    con.row_factory = sqlite3.Row
+    return con
+
 def tablecols(con, table_name):
     cur = con.cursor()
     cur.execute(u'select * from ' + table_name)
