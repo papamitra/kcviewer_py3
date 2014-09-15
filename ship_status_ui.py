@@ -4,15 +4,16 @@
 import sqlite3
 
 from ship_status import Ui_Form
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QSizePolicy
 import utils
 import model
 
 class DeckStatus(QWidget):
-    def __init__(self, con):
+    def __init__(self):
         super(DeckStatus, self).__init__()
-        self.con = con
-        self.con.row_factory = sqlite3.Row
+        self.con = utils.connect_db()
+
         self.vbox_layout = QVBoxLayout()
         self.setLayout(self.vbox_layout)
         self.ui_list = []
@@ -22,8 +23,10 @@ class DeckStatus(QWidget):
             self.ui_list.append(ui)
             self.vbox_layout.addWidget(ui)
 
+    @pyqtSlot()
     def on_status_change(self):
-        deck = model.DeckPortInfo(self.con, 2)
+        print("on_status_change")
+        deck = model.DeckPortInfo(self.con, 1)
         for (i,ship) in enumerate(deck.ships()):
             ui = self.ui_list[i]
             ui.set_ship(ship)
