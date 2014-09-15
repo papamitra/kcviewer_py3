@@ -51,11 +51,9 @@ class ShipStatus(QWidget,Ui_Form):
 if __name__ == '__main__':
     import sys
 
-    con = sqlite3.connect('data.db', detect_types = sqlite3.PARSE_DECLTYPES)
-
     app = QApplication(sys.argv)
 
-    st = DeckStatus(con)
+    st = DeckStatus()
     st.on_status_change()
     st.show()
 
