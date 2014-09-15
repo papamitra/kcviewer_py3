@@ -76,10 +76,17 @@ class ShipStatus(QWidget,Ui_Form):
 if __name__ == '__main__':
     import sys
 
+    class Emitter(QObject):
+        sig = pyqtSignal()
+        def __init__(self):
+            super(Emitter, self).__init__()
+
     app = QApplication(sys.argv)
 
+    emitter = Emitter()
     st = DeckStatus()
-    st.on_status_change()
+    emitter.sig.connect(st.on_status_change)
     st.show()
 
+    emitter.sig.emit()
     sys.exit(app.exec_())
