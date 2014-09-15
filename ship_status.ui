@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>277</width>
+    <width>357</width>
     <height>72</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="font">
    <font>
@@ -76,7 +82,7 @@
      <item>
       <widget class="QLabel" name="ship_hp">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -90,19 +96,28 @@
        <property name="text">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;HP: &lt;/span&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;100&lt;/span&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt; /105&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+       </property>
       </widget>
      </item>
      <item>
       <widget class="QProgressBar" name="hp_bar">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="minimumSize">
         <size>
-         <width>0</width>
+         <width>150</width>
          <height>10</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>16777215</width>
+         <width>150</width>
          <height>10</height>
         </size>
        </property>
@@ -120,6 +135,9 @@ QProgressBar::chunk{
        <property name="value">
         <number>50</number>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+       </property>
        <property name="format">
         <string/>
        </property>
@@ -129,6 +147,24 @@ QProgressBar::chunk{
    </item>
    <item>
     <widget class="QLabel" name="ship_cond">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>70</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>70</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="text">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;cond 99&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
