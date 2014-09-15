@@ -34,4 +34,6 @@ class DeckPortInfo(object):
         self.row = row
 
     def ships(self):
-        return [ShipStatus(self.con, ship_id) for ship_id in self.api_ship if ship_id != -1]
+        return [None if ship_id == -1 else
+                ShipStatus(self.con, ship_id) for ship_id in self.api_ship]
+
