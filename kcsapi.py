@@ -7,7 +7,6 @@ import re
 import simplejson
 import utils
 
-DEBUG_DB = 'kscapi_debug.db'
 CREATE_MESSAGE_TABLE = u"""
 create table if not exists msg(
   timestamp integer,
@@ -101,7 +100,7 @@ class ApiMessage(object):
 class KcsApi(object):
 
     def __init__(self):
-        self.debug_con = sqlite3.connect(DEBUG_DB, isolation_level=None)
+        self.debug_con = utils.connect_debug_db()
         self.debug_con.execute(CREATE_MESSAGE_TABLE)
 
         self.con = utils.connect_db()
@@ -185,7 +184,7 @@ class KcsApi(object):
 
 # for debug
 def parse_debug_db(where = None):
-    con = utils.connect_db()
+    con = utils.connect_debug_db()
     c = con.cursor()
     c.execute('select * from msg' + (where if where else ''))
     debug_data = [(row[0], row[1], pickle.loads(str(row[2]))) for row in c]
