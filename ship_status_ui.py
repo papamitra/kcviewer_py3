@@ -5,9 +5,38 @@ import sqlite3
 
 from ship_status import Ui_Form
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QObject, QSize
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QSizePolicy, QLabel
+from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
+                             QSizePolicy, QLabel, QPushButton, QSpacerItem)
 import utils
 import model
+
+class DeckButton(QPushButton):
+    def __init__(self, deck_no, parent=None):
+        super(DeckButton, self).__init__(parent)
+        self.deck_no = deck_no
+        self.toggled.connect(self.on_toggled)
+
+    def on_toggled(self, checked):
+        print('toggled' + str(checked))
+
+class DeckSelector(QWidget):
+    deck_selected = pyqtSignal(int)
+
+    def __init__(self, parent=None):
+        super(DeckSelector, self).__init__(parent)
+        self.buttons = []
+        self.deck_layout = QHBoxLayout()
+        self.setLayout(self.deck_layout)
+
+        for i in range(1,5):
+            button = DeckButton(i, self)
+            button.setText("test")
+            button.setCheckable(True)
+            self.buttons.append(button)
+            self.deck_layout.addWidget(button)
+            button.show()
+
+        self.show()
 
 class DeckStatus(QWidget):
     def __init__(self):
@@ -16,11 +45,8 @@ class DeckStatus(QWidget):
 
         self.vbox_layout = QVBoxLayout()
         self.setLayout(self.vbox_layout)
-        self.deck_layout = QHBoxLayout()
 
         self.ship_views = []
-        self.deck_labels = []
-
         self.now_deck = 1
 
         sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.MinimumExpanding)
@@ -30,15 +56,19 @@ class DeckStatus(QWidget):
         self.setMinimumSize(QSize(500, 0))
         self.setMaximumSize(QSize(800, 16777215))
 
-        for _ in range(4):
-            ui = QLabel()
-            self.deck_labels.append(ui)
+        self.deckselector = DeckSelector()
+        self.vbox_layout.addWidget(self.deckselector)
+        self.deckselector.show()
 
         for _ in range(6):
             ui = ShipStatus()
             self.ship_views.append(ui)
             self.vbox_layout.addWidget(ui)
             ui.hide()
+
+        self.vbox_layout.addItem(QSpacerItem(40, 20,
+                                             QSizePolicy.Minimum,
+                                             QSizePolicy.Expanding))
 
     @pyqtSlot()
     def on_status_change(self):
@@ -47,6 +77,11 @@ class DeckStatus(QWidget):
         for (i,ship) in enumerate(deck.ships()):
             ui = self.ship_views[i]
             ui.set_ship(ship)
+
+    @pyqtSlot(int)
+    def on_select_deck(self, deck_no):
+        self.now_deck = deck_no
+        self.on_status_change()
 
     def closeEvent(self, event):
         print("close event");
