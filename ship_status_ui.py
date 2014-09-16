@@ -17,21 +17,20 @@ QPushButton{
 """
 
 class DeckButton(QPushButton):
-    deck_selected = pyqtSignal(int)
 
     def __init__(self, deck_no, parent):
         super(DeckButton, self).__init__(parent)
         self.parent = parent
         self.deck_no = deck_no
         self.setCheckable(True)
-        self.deck_selected.connect(self.parent.on_deck_selected)
 
     def nextCheckState(self):
         if not self.isChecked():
-            self.deck_selected.emit(self.deck_no)
             self.setChecked(True)
+            self.parent.on_deck_selected(self.deck_no)
 
 class DeckSelector(QWidget):
+    deck_selected = pyqtSignal(int)
 
     def __init__(self, parent=None):
         super(DeckSelector, self).__init__(parent)
@@ -49,12 +48,12 @@ class DeckSelector(QWidget):
 
         self.show()
 
-    @pyqtSlot(int)
     def on_deck_selected(self, deck_no):
         print("on_deck_Selected", deck_no)
         for deck in self.decks:
             if deck.deck_no != deck_no:
                 deck.setChecked(False)
+        self.deck_selected.emit(deck_no)
 
 class DeckStatus(QWidget):
     def __init__(self):
@@ -75,6 +74,8 @@ class DeckStatus(QWidget):
         self.setMaximumSize(QSize(800, 16777215))
 
         self.deckselector = DeckSelector()
+        self.deckselector.deck_selected.connect(self.on_deck_selected)
+
         self.vbox_layout.addWidget(self.deckselector)
         self.deckselector.show()
 
@@ -97,7 +98,7 @@ class DeckStatus(QWidget):
             ui.set_ship(ship)
 
     @pyqtSlot(int)
-    def on_select_deck(self, deck_no):
+    def on_deck_selected(self, deck_no):
         self.now_deck = deck_no
         self.on_status_change()
 
