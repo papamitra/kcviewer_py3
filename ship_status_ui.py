@@ -10,33 +10,51 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
 import utils
 import model
 
-class DeckButton(QPushButton):
-    def __init__(self, deck_no, parent=None):
-        super(DeckButton, self).__init__(parent)
-        self.deck_no = deck_no
-        self.toggled.connect(self.on_toggled)
+DECK_STYLESHEET = u"""
+QPushButton{
+    border: 0px;
+}
+"""
 
-    def on_toggled(self, checked):
-        print('toggled' + str(checked))
+class DeckButton(QPushButton):
+    deck_selected = pyqtSignal(int)
+
+    def __init__(self, deck_no, parent):
+        super(DeckButton, self).__init__(parent)
+        self.parent = parent
+        self.deck_no = deck_no
+        self.setCheckable(True)
+        self.deck_selected.connect(self.parent.on_deck_selected)
+
+    def nextCheckState(self):
+        if not self.isChecked():
+            self.deck_selected.emit(self.deck_no)
+            self.setChecked(True)
 
 class DeckSelector(QWidget):
-    deck_selected = pyqtSignal(int)
 
     def __init__(self, parent=None):
         super(DeckSelector, self).__init__(parent)
-        self.buttons = []
+        self.decks = []
         self.deck_layout = QHBoxLayout()
         self.setLayout(self.deck_layout)
+#        self.setStyleSheet(DECK_STYLESHEET)
 
         for i in range(1,5):
             button = DeckButton(i, self)
             button.setText("test")
-            button.setCheckable(True)
-            self.buttons.append(button)
+            self.decks.append(button)
             self.deck_layout.addWidget(button)
             button.show()
 
         self.show()
+
+    @pyqtSlot(int)
+    def on_deck_selected(self, deck_no):
+        print("on_deck_Selected", deck_no)
+        for deck in self.decks:
+            if deck.deck_no != deck_no:
+                deck.setChecked(False)
 
 class DeckStatus(QWidget):
     def __init__(self):
