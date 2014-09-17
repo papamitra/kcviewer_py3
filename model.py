@@ -1,7 +1,8 @@
 
 import utils
 
-class DbMapper(object):
+class TableMapper(object):
+    """ metaclass to create readonly ORM class"""
     def __init__(self, table_name):
         self.table_name = table_name
 
@@ -16,26 +17,24 @@ class DbMapper(object):
 
         return type(classname, base_types, dict)
 
-class ShipStatus(object):
-    __metaclass__ = DbMapper('ship_view')
+class Ship(object):
+    __metaclass__ = TableMapper('ship_view')
     def __init__(self, con, ship_id):
         cur = con.cursor()
         cur.execute(u'select * from ship_view where id=?', (ship_id,))
         row = cur.fetchone()
-        self.row = row
+        self.row = row # for metaclass
 
-class DeckPortInfo(object):
-    __metaclass__ = DbMapper('api_deck_port')
-    def __init__(self, con, port_id):
+class Deck(object):
+    __metaclass__ = TableMapper('api_deck_port')
+    def __init__(self, con, row):
         self.con = con
-        cur = self.con.cursor()
-        cur.execute(u'select * from api_deck_port where api_id=?', (port_id,))
-        row = cur.fetchone()
-        self.row = row
+        self.row = row # for metalass
 
     def ships(self):
         return [None if ship_id == -1 else
-                ShipStatus(self.con, ship_id) for ship_id in self.api_ship]
+                Ship(self.con, ship_id) for ship_id in self.api_ship]
+
 class Port(object):
     def __init__(self, con):
         self.con = con
