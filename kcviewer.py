@@ -10,7 +10,7 @@ from PyQt5 import QtWebKit, QtNetwork
 import simplejson
 import os
 from mainwindow import Ui_MainWindow
-from ship_status_ui import DeckStatus
+from ship_status_ui import PortStatus
 
 class ProxyAccessManager(QNetworkAccessManager):
     def __init__(self,parent):
@@ -42,8 +42,8 @@ class KCView(QMainWindow, Ui_MainWindow):
         super(KCView, self).__init__()
         self.setupUi(self)
 
-        self.deckstatus = DeckStatus()
-        self.verticalLayout.addWidget(self.deckstatus)
+        self.portstatus = PortStatus()
+        self.verticalLayout.addWidget(self.portstatus)
 
         am = ProxyAccessManager(self)
         self.webView.page().setNetworkAccessManager(am)
