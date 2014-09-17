@@ -32,8 +32,9 @@ class DeckButton(QPushButton):
 class DeckSelector(QWidget):
     deck_selected = pyqtSignal(int)
 
-    def __init__(self, parent=None):
+    def __init__(self, con, parent):
         super(DeckSelector, self).__init__(parent)
+        self.con = con
         self.decks = []
         self.deck_layout = QHBoxLayout()
         self.setLayout(self.deck_layout)
@@ -55,10 +56,12 @@ class DeckSelector(QWidget):
                 deck.setChecked(False)
         self.deck_selected.emit(deck_no)
 
-class DeckStatus(QWidget):
+class PortStatus(QWidget):
     def __init__(self):
-        super(DeckStatus, self).__init__()
+        super(PortStatus, self).__init__()
         self.con = utils.connect_db()
+
+        self.port = model.Port(self.con)
 
         self.vbox_layout = QVBoxLayout()
         self.setLayout(self.vbox_layout)
@@ -73,7 +76,7 @@ class DeckStatus(QWidget):
         self.setMinimumSize(QSize(500, 0))
         self.setMaximumSize(QSize(800, 16777215))
 
-        self.deckselector = DeckSelector()
+        self.deckselector = DeckSelector(self.con, self)
         self.deckselector.deck_selected.connect(self.on_deck_selected)
 
         self.vbox_layout.addWidget(self.deckselector)
@@ -92,7 +95,7 @@ class DeckStatus(QWidget):
     @pyqtSlot()
     def on_status_change(self):
         print("on_status_change")
-        deck = model.DeckPortInfo(self.con, self.now_deck)
+        deck = self.port.deck(self.now_deck)
         for (i,ship) in enumerate(deck.ships()):
             ui = self.ship_views[i]
             ui.set_ship(ship)
@@ -138,7 +141,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     emitter = Emitter()
-    st = DeckStatus()
+    st = PortStatus()
     emitter.sig.connect(st.on_status_change)
     st.show()
 
