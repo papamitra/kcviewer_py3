@@ -36,4 +36,17 @@ class DeckPortInfo(object):
     def ships(self):
         return [None if ship_id == -1 else
                 ShipStatus(self.con, ship_id) for ship_id in self.api_ship]
+class Port(object):
+    def __init__(self, con):
+        self.con = con
 
+    def decks(self):
+        cur = self.con.cursor()
+        cur.execute(u'select * from api_deck_port')
+        return [Deck(self.con, row) for row in cur]
+
+    def deck(self, deck_id):
+        cur = self.con.cursor()
+        cur.execute(u'select * from api_deck_port where api_id = ?', (deck_id, ))
+        row = cur.fetchone()
+        return Deck(self.con, row)
