@@ -23,11 +23,27 @@ class DeckButton(QPushButton):
         self.parent = parent
         self.deck_no = deck_no
         self.setCheckable(True)
+        if deck_no == 1:
+            self.setChecked(True)
+        else:
+            self.setChecked(False)
 
     def nextCheckState(self):
         if not self.isChecked():
             self.setChecked(True)
             self.parent.on_deck_selected(self.deck_no)
+            self.update()
+
+    def checkStateSet(self):
+        self.update()
+
+    def update(self):
+        if self.isChecked():
+            con = self.parent.con
+            deck = model.Port(con).deck(self.deck_no)
+            self.setText('/' + deck.api_name)
+        else:
+            self.setText('/' + str(self.deck_no))
 
 class DeckSelector(QWidget):
     deck_selected = pyqtSignal(int)
@@ -40,13 +56,7 @@ class DeckSelector(QWidget):
         self.setLayout(self.deck_layout)
 #        self.setStyleSheet(DECK_STYLESHEET)
 
-        for i in range(1,5):
-            button = DeckButton(i, self)
-            button.setText("test")
-            self.decks.append(button)
-            self.deck_layout.addWidget(button)
-            button.show()
-
+        self.update()
         self.show()
 
     def on_deck_selected(self, deck_no):
@@ -55,6 +65,15 @@ class DeckSelector(QWidget):
             if deck.deck_no != deck_no:
                 deck.setChecked(False)
         self.deck_selected.emit(deck_no)
+
+    def update(self):
+        port = model.Port(self.con)
+        decks_no = len(port.decks())
+        for i in range(len(self.decks), decks_no):
+            button = DeckButton(i+1, self)
+            self.decks.append(button)
+            self.deck_layout.addWidget(button)
+            button.show()
 
 class PortStatus(QWidget):
     def __init__(self):
