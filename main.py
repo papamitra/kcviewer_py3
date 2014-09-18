@@ -71,7 +71,7 @@ if __name__ == '__main__':
     proxythread.start()
 
     browser = kcviewer.KCView(url)
-    signal_emitter.api_port.connect(browser.deckstatus.on_status_change)
+    signal_emitter.api_port.connect(browser.portstatus.on_status_change)
 
     #proxythread.receive_msg.connect(browser.on_receive)
 
