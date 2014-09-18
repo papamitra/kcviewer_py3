@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from PyQt5.QtCore import pyqtSlot, QTimer
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QFrame,
                              QSizePolicy, QLabel, QPushButton, QSpacerItem)
 
@@ -14,6 +15,7 @@ class ExpeditionLabel(QLabel):
         super(ExpeditionLabel, self).__init__(parent)
         self.parent = parent
         self.deck_no = deck_no
+        self.parent.timer.timeout.connect(self.update)
         self.reload()
 
     def reload(self):
@@ -30,6 +32,7 @@ class ExpeditionLabel(QLabel):
 
         return '{:02d}:{:02d}:{:02d}'.format(h,m,s)
 
+    @pyqtSlot()
     def update(self):
         prefix = u'/' + str(self.deck_no)
         if self.deck is None:
@@ -47,6 +50,7 @@ class ExpeditionBox(QWidget):
         super(ExpeditionBox, self).__init__(parent)
 
         self.con = utils.connect_db()
+        self.timer = QTimer()
 
         self.vbox = QVBoxLayout()
         self.setLayout(self.vbox)
@@ -63,6 +67,8 @@ class ExpeditionBox(QWidget):
         for i in range(1, MAX_FLEET_NUM):
             label = ExpeditionLabel(self, i+1)
             self.vbox.addWidget(label)
+
+        self.timer.start(1000)
 
 if __name__ == '__main__':
     import sys
