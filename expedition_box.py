@@ -26,7 +26,7 @@ class ExpeditionLabel(QLabel):
     def formattime(sec):
         h = sec/(60**2)
         m = (sec % (60**2)) / 60
-        s = sec % (60**3)
+        s = sec % 60
 
         return '{:02d}:{:02d}:{:02d}'.format(h,m,s)
 
@@ -37,7 +37,7 @@ class ExpeditionLabel(QLabel):
         elif self.deck.api_mission[2] == 0:
             self.setText(prefix + u'- ')
         else:
-            sec = self.deck.api_mission[2] - time.time() * 1000
+            sec = int(self.deck.api_mission[2]/1000 - int(time.time()))
             if sec < 0:
                 sec = 0
             self.setText(prefix + u'- ' + self.formattime(sec))
