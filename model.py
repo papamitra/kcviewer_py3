@@ -48,4 +48,6 @@ class Port(object):
         cur = self.con.cursor()
         cur.execute(u'select * from api_deck_port where api_id = ?', (deck_id, ))
         row = cur.fetchone()
+        if row is None:
+            return None
         return Deck(self.con, row)
