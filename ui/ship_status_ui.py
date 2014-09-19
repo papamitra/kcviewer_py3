@@ -3,10 +3,10 @@
 
 import sqlite3
 
-from ship_status import Ui_Form
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QObject, QSize
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
-                             QSizePolicy, QLabel, QPushButton, QSpacerItem)
+                             QSizePolicy, QLabel, QPushButton, QSpacerItem, QProgressBar)
+from PyQt5.QtGui import QPixmap, QIcon, QColor
 import utils
 import model
 
@@ -129,24 +129,85 @@ class PortStatus(QWidget):
         self.con.close()
         event.accept()
 
-HP_FORMAT = u'<html><head/><body><p><span style=" font-size:16pt;">HP: </span><span style=" font-size:16pt; font-weight:600;">{nowhp}</span><span style=" font-size:16pt;"> /{maxhp}</span></p></body></html>'
 LV_FORMAT = u'<html><head/><body><p>Lv <span style=" font-size:16pt;">{lv}</span></p></body></html>'
-COND_FORMAT= u"""<html><head/><body><p><span style=" font-size:16pt;"><span style=" color:{color};">■</span>{cond}</span><br/><span style=" font-size:10pt;">condition<span></p></body></html>"""
 
-class ShipStatus(QWidget,Ui_Form):
+HP_FORMAT = u'<html><head/><body><p><span style=" font-size:16pt;">HP: </span><span style=" font-size:16pt; font-weight:600;">{0}</span><span style=" font-size:16pt;"> /{1}</span></p></body></html>'
+
+HP_BAR_STYLE = u"""
+QProgressBar{
+    border: 1px solid black;
+    border-radius: 0px;
+}
+
+QProgressBar::chunk{
+    background-color: lightgreen;
+    width: 10px;
+}
+"""
+
+class ShipHp(QWidget):
+    def __init__(self, parent):
+        super(ShipHp, self).__init__(parent)
+        self.vbox = QVBoxLayout()
+        self.setLayout(self.vbox)
+        self.hp = QLabel(self)
+        self.vbox.addWidget(self.hp)
+
+        self.hp_bar = QProgressBar(self)
+        self.hp_bar.setStyleSheet(HP_BAR_STYLE)
+        self.vbox.addWidget(self.hp_bar)
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.hp_bar.setSizePolicy(sizePolicy)
+        self.hp_bar.setMinimumSize(QSize(150, 10))
+        self.hp_bar.setMaximumSize(QSize(150, 10))
+
+    def set_hp(self, hp, maxhp):
+        self.hp.setText(HP_FORMAT.format(hp, maxhp))
+        self.hp_bar.setValue(hp*100/maxhp)
+        self.hp_bar.setFormat('')
+
+class ShipCondition(QWidget):
+    def __init__(self, parent):
+        super(ShipCondition, self).__init__(parent)
+        self.hbox = QHBoxLayout()
+        self.setLayout(self.hbox)
+        self.pixmap = QLabel()
+        self.hbox.addWidget(self.pixmap)
+        self.cond = QLabel(self)
+        self.hbox.addWidget(self.cond)
+
+    def set_cond(self, cond):
+        pixmap = QPixmap(20,20)
+        pixmap.fill(QColor('yellow'))
+        self.pixmap.setPixmap(pixmap)
+        pass
+
+class ShipStatus(QWidget):
     def __init__(self, parent=None):
         super(ShipStatus, self).__init__(parent)
-        self.setupUi(self)
+        self.hbox = QHBoxLayout()
+        self.setLayout(self.hbox)
+
+        self.name = QLabel(self)
+        self.hbox.addWidget(self.name)
+
+        self.lv = QLabel(self)
+        self.hbox.addWidget(self.lv)
+
+        self.hp = ShipHp(self)
+        self.hbox.addWidget(self.hp)
+
+        self.cond = ShipCondition(self)
+        self.hbox.addWidget(self.cond)
 
     def set_ship(self, ship):
         if ship is None:
             self.hide()
             return
-        self.ship_name.setText(ship.name)
-        self.ship_hp.setText(HP_FORMAT.format(nowhp=ship.nowhp, maxhp=ship.maxhp))
-        self.hp_bar.setValue(float(ship.nowhp) / float(ship.maxhp) * 100)
-        self.ship_lv.setText(LV_FORMAT.format(lv=ship.lv))
-        self.ship_cond.setText(COND_FORMAT.format(color='#fde95f', cond=ship.cond))
+        self.name.setText(ship.name)
+        self.hp.set_hp(ship.nowhp, ship.maxhp)
+        self.lv.setText(LV_FORMAT.format(lv=ship.lv))
+        self.cond.set_cond(cond=ship.cond)
         self.show()
 
 if __name__ == '__main__':
