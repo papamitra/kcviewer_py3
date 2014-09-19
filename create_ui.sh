@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pyuic5 ship_status.ui > ship_status.py
-pyuic5 mainwindow.ui > mainwindow.py
+pyuic5 ui/ship_status.ui > ui/ship_status.py
+pyuic5 ui/mainwindow.ui > ui/mainwindow.py
 
 
