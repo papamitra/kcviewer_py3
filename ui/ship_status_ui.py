@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt5.QtGui import QPixmap, QIcon, QColor
 import utils
 import model
+import slotitem
 
 DECK_STYLESHEET = u"""
 QPushButton{
@@ -102,7 +103,7 @@ class PortStatus(QWidget):
         self.deckselector.show()
 
         for _ in range(6):
-            ui = ShipStatus()
+            ui = ShipStatus(self)
             self.ship_views.append(ui)
             self.vbox_layout.addWidget(ui)
             ui.hide()
@@ -182,9 +183,62 @@ class ShipCondition(QWidget):
         self.pixmap.setPixmap(pixmap)
         pass
 
+class ShipSlot(QWidget):
+    sloticon_table = None
+    type_table = {1: 'MainCanonLight',
+                  2: 'MainCanonMedium',
+                  3: 'MainCanonHeavy',
+                  4: 'SecondaryCanon',
+                  5: 'Torpedo',
+                  6: 'Fighter',
+                  7: 'DiveBomber',
+                  8: 'TorpedoBomber',
+                  9: 'ReconPlane',
+                  10:'ReconSeaplane',
+                  11:'Rader',
+                  12:'AAshell',
+                  13:'APShell',
+                  14:'DamageControl',
+                  15:'AAGun',
+                  16:'HighAngleGun',
+                  17:'ASW',
+                  18:'Soner',
+                  19:'EngineImprovement',
+                  20:'LandingCraft',
+                  21:'Autogyro',
+                  22:'AntillerySpotter',
+                  23:'AntiTorpedoBulge',
+                  24:'SearchLight',
+                  25:'DrumCanister',
+                  26:'Facility',
+                  27:'Flare',
+                  28:'FleetCommandFacility',
+                  29:'MaintenancePersonnel'}
+
+    def __init__(self,parent):
+        super(ShipSlot, self).__init__(parent)
+
+        if self.sloticon_table is None:
+            self.sloticon_table = slotitem.create_sloticontable()
+
+        self.box = QHBoxLayout()
+        self.setLayout(self.box)
+        self.box.addWidget(slotitem.IconBox(self.sloticon_table['MainCanonLight']))
+
+    def set_slot(self, types):
+        for i in reversed(range(self.box.count())):
+            self.box.itemAt(i).widget().setParent(None)
+        for t in types:
+            if not t in self.type_table: continue
+            if not self.type_table[t] in self.sloticon_table: continue
+            type_str = self.type_table[t]
+            self.box.addWidget(slotitem.IconBox(self.sloticon_table[type_str]))
+
 class ShipStatus(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent):
         super(ShipStatus, self).__init__(parent)
+        self.con = parent.con
+
         self.hbox = QHBoxLayout()
         self.setLayout(self.hbox)
 
@@ -200,6 +254,9 @@ class ShipStatus(QWidget):
         self.cond = ShipCondition(self)
         self.hbox.addWidget(self.cond)
 
+        self.slot = ShipSlot(self)
+        self.hbox.addWidget(self.slot)
+
     def set_ship(self, ship):
         if ship is None:
             self.hide()
@@ -208,6 +265,16 @@ class ShipStatus(QWidget):
         self.hp.set_hp(ship.nowhp, ship.maxhp)
         self.lv.setText(LV_FORMAT.format(lv=ship.lv))
         self.cond.set_cond(cond=ship.cond)
+
+        item_types = []
+        for slot_id in ship.slot:
+            print(slot_id)
+            if slot_id == -1: continue
+            slotitem = model.SlotItem(self.con, slot_id)
+            print(slotitem)
+            item_types.append(slotitem.item_type[3])
+        self.slot.set_slot(item_types)
+
         self.show()
 
 if __name__ == '__main__':
