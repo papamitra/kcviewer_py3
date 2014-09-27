@@ -37,26 +37,49 @@ class MainWidget(QWidget):
                 if viewbox is not None:
                     grid = viewbox.find('p:Grid', namespaces=ns)
                     if grid is not None:
-                        hbox.addWidget(IconBox([elm for elm in grid], self, grid))
+                        hbox.addWidget(IconBox(SlotIcon([elm for elm in grid], grid), self))
                 else:
                     path_elm = trg.find('p:Setter/p:Setter.Value/p:ControlTemplate/p:Path',namespaces=ns)
                     if path_elm is not None:
-                        hbox.addWidget(IconBox([path_elm],self))
+                        hbox.addWidget(IconBox(SlotIcon([path_elm]),self))
                 i += 1
                 i = i % 5
         except None as e:
             print(e)
 
 class IconBox(QWidget):
+    def __init__(self, icon, parent=None):
+        super(IconBox, self).__init__(parent)
+        self.setMinimumSize(QSize(50, 50))
+        self.icon = icon
+
+    def paintEvent(self, event):
+        (w, h) = (self.width(), self.height())
+        (bw, bh) = self.icon.boundingRect()
+
+        # alignment to center
+        ratio_w = float(w) / float(bw)
+        ratio_h = float(h) / float(bh)
+        if  ratio_h < ratio_w:
+            new_bw = w / ratio_h
+            brect = QRectF(-(new_bw - bw)/2, 0, new_bw, bh)
+        else:
+            new_bh = h / ratio_w
+            brect = QRectF(0, -(new_bh - bh)/2, bw, new_bh)
+
+        self.icon.setSceneRect(brect)
+
+        painter = QPainter(self)
+        painter.setRenderHints(QPainter.Antialiasing)
+        self.icon.render(painter)
+
+class SlotIcon(QGraphicsScene):
     builder = PathBuilder()
 
-    def __init__(self, elms, parent, grid=None):
-        super(IconBox, self).__init__(parent)
+    def __init__(self, elms, grid=None):
+        super(SlotIcon, self).__init__(0,0,50,50)
         self.elms = elms
-        self.setMinimumSize(QSize(50, 50))
         self.grid = grid
-        self.whole_rect = None
-        self.scene = QGraphicsScene(0,0,50,50)
 
         for elm in self.elms:
             if elm.tag == PRE_P + 'Path':
@@ -67,6 +90,15 @@ class IconBox(QWidget):
                 self.create_arc(elm)
             elif elm.tag == PRE_ED + 'RegularPolygon':
                 self.create_regular_polygon(elm)
+
+    def boundingRect(self):
+        brect = self.itemsBoundingRect()
+        (bw, bh) = (brect.width(), brect.height())
+        if self.grid is not None and 'Margin' in self.grid.attrib:
+            m = float(self.grid.attrib['Margin'])
+            bw += m*2
+            bh += m*2
+        return (bw, bh)
 
     def _margin(self, elm):
         if 'Margin' in elm.attrib:
@@ -112,7 +144,7 @@ class IconBox(QWidget):
             thickness = float(elm.attrib['ArcThickness'])
             path.translate(thickness/2, thickness/2)
 
-        pathitem = self.scene.addPath(path)
+        pathitem = self.addPath(path)
 
         pen = QPen()
         if 'Fill' in elm.attrib:
@@ -128,7 +160,7 @@ class IconBox(QWidget):
         path.addEllipse(0, 0,
                         float(elm.attrib['Width']),
                         float(elm.attrib['Height']))
-        pathitem = self.scene.addPath(path, QPen(Qt.NoPen))
+        pathitem = self.addPath(path, QPen(Qt.NoPen))
 
         self._set_penbrush(pathitem, elm)
 
@@ -160,7 +192,7 @@ class IconBox(QWidget):
         path = self.builder.parse(data)
         rect = path.boundingRect()
         path.translate(-rect.x(), -rect.y())
-        pathitem = self.scene.addPath(path, QPen(Qt.NoPen))
+        pathitem = self.addPath(path, QPen(Qt.NoPen))
 
         self._set_penbrush(pathitem, elm)
 
@@ -185,7 +217,7 @@ class IconBox(QWidget):
 
     def create_regular_polygon(self, elm):
         path = self.regular_polygon_path(elm)
-        pathitem = self.scene.addPath(path, QPen(Qt.NoPen))
+        pathitem = self.addPath(path, QPen(Qt.NoPen))
 
         self._set_penbrush(pathitem, elm)
 
@@ -194,31 +226,6 @@ class IconBox(QWidget):
             pathitem.setPos(margin[0], margin[1])
 
         return path
-
-    def paintEvent(self, event):
-        (w, h) = (self.width(), self.height())
-        brect = self.scene.itemsBoundingRect()
-        (bw, bh) = (brect.width(), brect.height())
-        if self.grid is not None and 'Margin' in self.grid.attrib:
-            m = float(self.grid.attrib['Margin'])
-            bw += m*2
-            bh += m*2
-
-        # alignment to center
-        ratio_w = float(w) / float(bw)
-        ratio_h = float(h) / float(bh)
-        if  ratio_h < ratio_w:
-            new_bw = w / ratio_h
-            brect = QRectF(-(new_bw - bw)/2, 0, new_bw, bh)
-        else:
-            new_bh = h / ratio_w
-            brect = QRectF(0, -(new_bh - bh)/2, bw, new_bh)
-
-        self.scene.setSceneRect(brect)
-
-        painter = QPainter(self)
-        painter.setRenderHints(QPainter.Antialiasing)
-        self.scene.render(painter)
 
 def main():
     import sys
