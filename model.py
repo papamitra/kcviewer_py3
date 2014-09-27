@@ -35,6 +35,14 @@ class Deck(object):
         return [None if ship_id == -1 else
                 Ship(self.con, ship_id) for ship_id in self.api_ship]
 
+class SlotItem(object):
+    __metaclass__ = TableMapper('slotitem_view')
+    def __init__(self, con, slotitem_id):
+        cur = con.cursor()
+        cur.execute(u'select * from slotitem_view where id=?', (slotitem_id,))
+        row = cur.fetchone()
+        self.row = row # for metaclass
+
 class Port(object):
     def __init__(self, con):
         self.con = con
