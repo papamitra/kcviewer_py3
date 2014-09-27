@@ -17,36 +17,6 @@ ns = {'p' : "http://schemas.microsoft.com/winfx/2006/xaml/presentation",
 PRE_P = r"{http://schemas.microsoft.com/winfx/2006/xaml/presentation}"
 PRE_ED = r"{http://schemas.microsoft.com/expression/2010/drawing}"
 
-class MainWidget(QWidget):
-    def __init__(self):
-        super(MainWidget, self).__init__()
-
-        self.box = QVBoxLayout()
-        self.setLayout(self.box)
-
-        tree = ET.parse('SlotItemIcon.xml')
-        triggers = tree.findall(r'.//p:Trigger', namespaces=ns)
-
-        try:
-            i = 0
-            for trg in triggers:
-                if i == 0:
-                    hbox = QHBoxLayout()
-                    self.box.addLayout(hbox)
-                viewbox = trg.find('p:Setter/p:Setter.Value/p:ControlTemplate/p:Viewbox',namespaces=ns)
-                if viewbox is not None:
-                    grid = viewbox.find('p:Grid', namespaces=ns)
-                    if grid is not None:
-                        hbox.addWidget(IconBox(SlotIcon([elm for elm in grid], grid), self))
-                else:
-                    path_elm = trg.find('p:Setter/p:Setter.Value/p:ControlTemplate/p:Path',namespaces=ns)
-                    if path_elm is not None:
-                        hbox.addWidget(IconBox(SlotIcon([path_elm]),self))
-                i += 1
-                i = i % 5
-        except None as e:
-            print(e)
-
 class IconBox(QWidget):
     def __init__(self, icon, parent=None):
         super(IconBox, self).__init__(parent)
@@ -75,13 +45,11 @@ class IconBox(QWidget):
 
 class SlotIcon(QGraphicsScene):
     builder = PathBuilder()
-
     def __init__(self, elms, grid=None):
-        super(SlotIcon, self).__init__(0,0,50,50)
-        self.elms = elms
+        super(SlotIcon, self).__init__()
         self.grid = grid
 
-        for elm in self.elms:
+        for elm in elms:
             if elm.tag == PRE_P + 'Path':
                 self.create_path(elm)
             elif elm.tag == PRE_P + 'Ellipse':
@@ -226,6 +194,62 @@ class SlotIcon(QGraphicsScene):
             pathitem.setPos(margin[0], margin[1])
 
         return path
+
+# Don't call before QApplication() initialized.
+def create_sloticontable():
+    table = {}
+    tree = ET.parse('ui/SlotItemIcon.xml')
+    triggers = tree.findall(r'.//p:Trigger', namespaces=ns)
+
+    for trg in triggers:
+        if (not 'Property' in trg.attrib and \
+           'Type' == trg.attrib['Property']) or \
+           not 'Value' in trg.attrib:
+            continue
+
+        name = trg.attrib['Value']
+
+        viewbox = trg.find('p:Setter/p:Setter.Value/p:ControlTemplate/p:Viewbox',namespaces=ns)
+        if viewbox is not None:
+            grid = viewbox.find('p:Grid', namespaces=ns)
+            if grid is not None:
+                table[name] = SlotIcon([elm for elm in grid], grid)
+        else:
+            path_elm = trg.find('p:Setter/p:Setter.Value/p:ControlTemplate/p:Path',namespaces=ns)
+            if path_elm is not None:
+                table[name] = SlotIcon([path_elm])
+    return table
+
+# for test
+class MainWidget(QWidget):
+    def __init__(self):
+        super(MainWidget, self).__init__()
+
+        self.box = QVBoxLayout()
+        self.setLayout(self.box)
+
+        tree = ET.parse('ui/SlotItemIcon.xml')
+        triggers = tree.findall(r'.//p:Trigger', namespaces=ns)
+
+        try:
+            i = 0
+            for trg in triggers:
+                if i == 0:
+                    hbox = QHBoxLayout()
+                    self.box.addLayout(hbox)
+                viewbox = trg.find('p:Setter/p:Setter.Value/p:ControlTemplate/p:Viewbox',namespaces=ns)
+                if viewbox is not None:
+                    grid = viewbox.find('p:Grid', namespaces=ns)
+                    if grid is not None:
+                        hbox.addWidget(IconBox(SlotIcon([elm for elm in grid], grid), self))
+                else:
+                    path_elm = trg.find('p:Setter/p:Setter.Value/p:ControlTemplate/p:Path',namespaces=ns)
+                    if path_elm is not None:
+                        hbox.addWidget(IconBox(SlotIcon([path_elm]),self))
+                i += 1
+                i = i % 5
+        except None as e:
+            print(e)
 
 def main():
     import sys
