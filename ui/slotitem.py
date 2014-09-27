@@ -23,6 +23,14 @@ class IconBox(QWidget):
         self.setMinimumSize(QSize(50, 50))
         self.icon = icon
 
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        self.setSizePolicy(sizePolicy)
+        self.setMinimumSize(QSize(30, 30))
+        self.setMaximumSize(QSize(30, 30))
+
+
     def paintEvent(self, event):
         (w, h) = (self.width(), self.height())
         (bw, bh) = self.icon.boundingRect()

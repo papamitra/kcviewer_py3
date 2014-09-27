@@ -132,7 +132,8 @@ class PortStatus(QWidget):
 
 LV_FORMAT = u'<html><head/><body><p>Lv <span style=" font-size:16pt;">{lv}</span></p></body></html>'
 
-HP_FORMAT = u'<html><head/><body><p><span style=" font-size:16pt;">HP: </span><span style=" font-size:16pt; font-weight:600;">{0}</span><span style=" font-size:16pt;"> /{1}</span></p></body></html>'
+#HP_FORMAT = u'<html><head/><body><p><span style=" font-size:16pt;">HP: </span><span style=" font-size:16pt; font-weight:600;">{0}</span><span style=" font-size:16pt;"> /{1}</span></p></body></html>'
+HP_FORMAT = u'<html><head/><body><p>HP: </span><span style="font-weight:600;">{0}</span> /{1}</body></html>'
 
 HP_BAR_STYLE = u"""
 QProgressBar{
@@ -150,8 +151,10 @@ class ShipHp(QWidget):
     def __init__(self, parent):
         super(ShipHp, self).__init__(parent)
         self.vbox = QVBoxLayout()
+        self.vbox.setContentsMargins(0,0,0,10)
         self.setLayout(self.vbox)
         self.hp = QLabel(self)
+        self.hp.setMinimumSize(QSize(0, 50))
         self.vbox.addWidget(self.hp)
 
         self.hp_bar = QProgressBar(self)
@@ -159,8 +162,8 @@ class ShipHp(QWidget):
         self.vbox.addWidget(self.hp_bar)
         sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.hp_bar.setSizePolicy(sizePolicy)
-        self.hp_bar.setMinimumSize(QSize(150, 10))
-        self.hp_bar.setMaximumSize(QSize(150, 10))
+        self.hp_bar.setMinimumSize(QSize(100, 10))
+        self.hp_bar.setMaximumSize(QSize(100, 10))
 
     def set_hp(self, hp, maxhp):
         self.hp.setText(HP_FORMAT.format(hp, maxhp))
@@ -240,13 +243,20 @@ class ShipStatus(QWidget):
         self.con = parent.con
 
         self.hbox = QHBoxLayout()
+        self.hbox.setContentsMargins(0,0,0,0)
+
         self.setLayout(self.hbox)
 
         self.name = QLabel(self)
         self.hbox.addWidget(self.name)
+        self.name.setMinimumSize(QSize(80, 50))
+        self.name.setMaximumSize(QSize(80, 50))
+
 
         self.lv = QLabel(self)
         self.hbox.addWidget(self.lv)
+        self.lv.setMinimumSize(QSize(60, 50))
+        self.lv.setMaximumSize(QSize(60, 50))
 
         self.hp = ShipHp(self)
         self.hbox.addWidget(self.hp)
@@ -256,6 +266,16 @@ class ShipStatus(QWidget):
 
         self.slot = ShipSlot(self)
         self.hbox.addWidget(self.slot)
+
+        spacerItem = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.hbox.addItem(spacerItem)
+
+        sizePolicy = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        self.setSizePolicy(sizePolicy)
+        self.setMinimumSize(QSize(500, 60))
+        self.setMaximumSize(QSize(500, 100))
 
     def set_ship(self, ship):
         if ship is None:
