@@ -83,7 +83,7 @@ CREATE_SLOTITEM_VIEW = u"""
 create view if not exists slotitem_view as
 select api_slotitem.api_id        as id,
        api_mst_slotitem.api_name  as name,
-       api_mst_slotitem.api_type  as type
+       api_mst_slotitem.api_type  as item_type
 from api_slotitem left join api_mst_slotitem on api_slotitem.api_slotitem_id == api_mst_slotitem.api_id;
 """
 
