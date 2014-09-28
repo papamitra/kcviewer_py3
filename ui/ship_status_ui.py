@@ -86,7 +86,7 @@ class PortStatus(QWidget):
 
         self.vbox_layout = QVBoxLayout()
         self.vbox_layout.setSpacing(0)
-        self.vbox_layout.setContentsMargins(0,0,0,0)
+        self.vbox_layout.setContentsMargins(10,0,10,0)
 
         self.setLayout(self.vbox_layout)
 
@@ -127,6 +127,14 @@ class PortStatus(QWidget):
         self.con.close()
         event.accept()
 
+    # for apply stylesheet
+    def paintEvent(self, pe):
+        opt = QStyleOption()
+        opt.initFrom(self)
+        p = QPainter(self)
+        s = self.style()
+        s.drawPrimitive(QStyle.PE_Widget, opt, p, self)
+
 LV_FORMAT = u'<html><head/><body><p>Lv <span style=" font-size:16pt;">{lv}</span></p></body></html>'
 
 #HP_FORMAT = u'<html><head/><body><p><span style=" font-size:16pt;">HP: </span><span style=" font-size:16pt; font-weight:600;">{0}</span><span style=" font-size:16pt;"> /{1}</span></p></body></html>'
@@ -156,8 +164,12 @@ QWidget {
 */
 }
 
+PortStatus{
+  border: 2px solid lightgray;
+}
+
 ShipStatus{
-  border-bottom: 1px solid darkgray;
+  border-bottom: 2px solid lightgray;
 }
 """
 
@@ -195,7 +207,7 @@ class ShipCondition(QWidget):
         super(ShipCondition, self).__init__(parent)
         self.hbox = QHBoxLayout()
         self.hbox.setSpacing(0)
-        self.hbox.setContentsMargins(0,0,0,8)
+        self.hbox.setContentsMargins(0,0,0,10)
 
         self.setLayout(self.hbox)
         self.pixmap = QLabel()
@@ -300,12 +312,12 @@ class ShipStatus(QWidget):
         spacerItem = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.hbox.addItem(spacerItem)
 
-        sizePolicy = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         self.setSizePolicy(sizePolicy)
         self.setMinimumSize(QSize(500, 40))
-        self.setMaximumSize(QSize(500, 40))
+        self.setMaximumSize(QSize(9999, 40))
 
     def set_ship(self, ship):
         if ship is None:
