@@ -9,7 +9,7 @@ from PyQt5 import QtWebKit, QtNetwork
 
 import simplejson
 import os
-from ui.mainwindow import Ui_MainWindow
+from ui.mainwindow import MainWindow
 from ui.ship_status_ui import PortStatus
 
 class ProxyAccessManager(QNetworkAccessManager):
@@ -37,10 +37,9 @@ class ProxyAccessManager(QNetworkAccessManager):
         #QNetworkProxy.setApplicationProxy(proxy);
         self.setProxy(proxy)
 
-class KCView(QMainWindow, Ui_MainWindow):
+class KCView(MainWindow):
     def __init__(self, url):
         super(KCView, self).__init__()
-        self.setupUi(self)
 
         self.portstatus = PortStatus()
         self.verticalLayout.addWidget(self.portstatus)
