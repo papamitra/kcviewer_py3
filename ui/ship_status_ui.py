@@ -6,8 +6,8 @@ import sqlite3
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QObject, QSize
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
                              QSizePolicy, QLabel, QPushButton, QSpacerItem, QProgressBar,
-                             QScrollArea)
-from PyQt5.QtGui import QPixmap, QIcon, QColor
+                             QScrollArea, QStyleOption, QStyle)
+from PyQt5.QtGui import QPixmap, QIcon, QColor, QPainter
 import utils
 import model
 import slotitem
@@ -85,6 +85,9 @@ class PortStatus(QWidget):
         self.port = model.Port(self.con)
 
         self.vbox_layout = QVBoxLayout()
+        self.vbox_layout.setSpacing(0)
+        self.vbox_layout.setContentsMargins(0,0,0,0)
+
         self.setLayout(self.vbox_layout)
 
         self.ship_views = []
@@ -127,7 +130,9 @@ class PortStatus(QWidget):
 LV_FORMAT = u'<html><head/><body><p>Lv <span style=" font-size:16pt;">{lv}</span></p></body></html>'
 
 #HP_FORMAT = u'<html><head/><body><p><span style=" font-size:16pt;">HP: </span><span style=" font-size:16pt; font-weight:600;">{0}</span><span style=" font-size:16pt;"> /{1}</span></p></body></html>'
-HP_FORMAT = u'<html><head/><body><p>HP: </span><span style="font-weight:600;">{0}</span> /{1}</body></html>'
+HP_FORMAT = u'<html><head/><body><p>HP: <span style="font-weight:600;">{0}</span> /{1}</p></body></html>'
+
+COND_FORMAT=u'<html><head/><body><p>{0}<br/><span style="font-size:8pt;">condition</span></p></body></html>'
 
 HP_BAR_STYLE = u"""
 QProgressBar{
@@ -141,14 +146,31 @@ QProgressBar::chunk{
 }
 """
 
+STYLE = u"""
+QWidget {
+/* for debug
+  border: 1px solid red;
+  padding: 0px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+*/
+}
+
+ShipStatus{
+  border-bottom: 1px solid darkgray;
+}
+"""
+
 class ShipHp(QWidget):
     def __init__(self, parent):
         super(ShipHp, self).__init__(parent)
         self.vbox = QVBoxLayout()
-        self.vbox.setContentsMargins(0,0,0,10)
+        self.vbox.setSpacing(0)
+        self.vbox.setContentsMargins(0,5,0,0)
+
         self.setLayout(self.vbox)
         self.hp = QLabel(self)
-        self.hp.setMinimumSize(QSize(0, 50))
+        #self.hp.setMinimumSize(QSize(0, 50))
         self.vbox.addWidget(self.hp)
 
         self.hp_bar = QProgressBar(self)
@@ -159,6 +181,10 @@ class ShipHp(QWidget):
         self.hp_bar.setMinimumSize(QSize(100, 10))
         self.hp_bar.setMaximumSize(QSize(100, 10))
 
+        self.vbox.addItem(QSpacerItem(40, 20,
+                                      QSizePolicy.Minimum,
+                                      QSizePolicy.Expanding))
+
     def set_hp(self, hp, maxhp):
         self.hp.setText(HP_FORMAT.format(hp, maxhp))
         self.hp_bar.setValue(hp*100/maxhp)
@@ -168,6 +194,9 @@ class ShipCondition(QWidget):
     def __init__(self, parent):
         super(ShipCondition, self).__init__(parent)
         self.hbox = QHBoxLayout()
+        self.hbox.setSpacing(0)
+        self.hbox.setContentsMargins(0,0,0,8)
+
         self.setLayout(self.hbox)
         self.pixmap = QLabel()
         self.hbox.addWidget(self.pixmap)
@@ -178,6 +207,7 @@ class ShipCondition(QWidget):
         pixmap = QPixmap(20,20)
         pixmap.fill(QColor('yellow'))
         self.pixmap.setPixmap(pixmap)
+        self.cond.setText(COND_FORMAT.format(str(cond)))
         pass
 
 class ShipSlot(QWidget):
@@ -219,6 +249,9 @@ class ShipSlot(QWidget):
             self.sloticon_table = slotitem.create_sloticontable()
 
         self.box = QHBoxLayout()
+        self.box.setSpacing(3)
+        self.box.setContentsMargins(0,5,0,5)
+
         self.setLayout(self.box)
 
     def set_slot(self, types):
@@ -244,19 +277,21 @@ class ShipStatus(QWidget):
 
         self.name = QLabel(self)
         self.hbox.addWidget(self.name)
-        self.name.setMinimumSize(QSize(80, 50))
-        self.name.setMaximumSize(QSize(80, 50))
+        self.name.setMinimumSize(QSize(80, 30))
+        self.name.setMaximumSize(QSize(80, 30))
 
 
         self.lv = QLabel(self)
         self.hbox.addWidget(self.lv)
-        self.lv.setMinimumSize(QSize(60, 50))
-        self.lv.setMaximumSize(QSize(60, 50))
+        self.lv.setMinimumSize(QSize(60, 30))
+        self.lv.setMaximumSize(QSize(60, 30))
 
         self.hp = ShipHp(self)
         self.hbox.addWidget(self.hp)
 
         self.cond = ShipCondition(self)
+        self.cond.setMinimumSize(QSize(80, 50))
+        self.cond.setMaximumSize(QSize(80, 50))
         self.hbox.addWidget(self.cond)
 
         self.slot = ShipSlot(self)
@@ -269,8 +304,8 @@ class ShipStatus(QWidget):
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         self.setSizePolicy(sizePolicy)
-        self.setMinimumSize(QSize(500, 60))
-        self.setMaximumSize(QSize(500, 999))
+        self.setMinimumSize(QSize(500, 40))
+        self.setMaximumSize(QSize(500, 40))
 
     def set_ship(self, ship):
         if ship is None:
@@ -292,12 +327,21 @@ class ShipStatus(QWidget):
 
         self.show()
 
+    # for apply stylesheet
+    def paintEvent(self, pe):
+        opt = QStyleOption()
+        opt.initFrom(self)
+        p = QPainter(self)
+        s = self.style()
+        s.drawPrimitive(QStyle.PE_Widget, opt, p, self)
+
 if __name__ == '__main__':
     import sys
 
     app = QApplication(sys.argv)
 
     sc = QScrollArea()
+    sc.setStyleSheet(STYLE)
     sc.setWidgetResizable(True)
     st = PortStatus()
     st.on_status_change()

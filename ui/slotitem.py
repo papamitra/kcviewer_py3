@@ -6,7 +6,7 @@ from PyQt5.QtGui import (QBrush, QColor, QFont, QLinearGradient, QPainter,
                          QPainterPath, QPalette, QPen, QTransform, QPolygonF)
 from PyQt5.QtWidgets import (QApplication, QComboBox, QGridLayout, QLabel,
                              QSizePolicy, QSpinBox, QWidget, QHBoxLayout, QVBoxLayout,
-                             QGraphicsScene, QGraphicsView)
+                             QGraphicsScene, QGraphicsView, QStyleOption, QStyle)
 
 from slotitem_parser import PathBuilder
 from math import sin, cos, pi
@@ -50,6 +50,14 @@ class IconBox(QWidget):
         painter = QPainter(self)
         painter.setRenderHints(QPainter.Antialiasing)
         self.icon.render(painter)
+
+        # for apply stylesheet
+        opt = QStyleOption()
+        opt.initFrom(self)
+        p = QPainter(self)
+        s = self.style()
+        s.drawPrimitive(QStyle.PE_Widget, opt, p, self)
+
 
 class SlotIcon(QGraphicsScene):
     builder = PathBuilder()
