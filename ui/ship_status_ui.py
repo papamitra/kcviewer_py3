@@ -12,12 +12,6 @@ import utils
 import model
 import slotitem
 
-DECK_STYLESHEET = u"""
-QPushButton{
-    border: 0px;
-}
-"""
-
 class DeckButton(QPushButton):
 
     def __init__(self, deck_no, parent):
@@ -56,7 +50,7 @@ class DeckSelector(QWidget):
         self.decks = []
         self.deck_layout = QHBoxLayout()
         self.setLayout(self.deck_layout)
-#        self.setStyleSheet(DECK_STYLESHEET)
+        #self.setStyleSheet(DECK_STYLESHEET)
 
         self.update()
         self.show()
@@ -76,6 +70,17 @@ class DeckSelector(QWidget):
             self.decks.append(button)
             self.deck_layout.addWidget(button)
             button.show()
+        self.deck_layout.addItem(QSpacerItem(40, 20,
+                                             QSizePolicy.Expanding,
+                                             QSizePolicy.Minimum))
+
+    # for apply stylesheet
+    def paintEvent(self, pe):
+        opt = QStyleOption()
+        opt.initFrom(self)
+        p = QPainter(self)
+        s = self.style()
+        s.drawPrimitive(QStyle.PE_Widget, opt, p, self)
 
 class PortStatus(QWidget):
     def __init__(self):
@@ -142,19 +147,7 @@ HP_FORMAT = u'<html><head/><body><p>HP: <span style="font-weight:600;">{0}</span
 
 COND_FORMAT=u'<html><head/><body><p>{0}<br/><span style="font-size:8pt;">condition</span></p></body></html>'
 
-HP_BAR_STYLE = u"""
-QProgressBar{
-    border: 1px solid black;
-    border-radius: 0px;
-}
-
-QProgressBar::chunk{
-    background-color: lightgreen;
-    width: 10px;
-}
-"""
-
-STYLE = u"""
+PORT_STYLESHEET = u"""
 QWidget {
 /* for debug
   border: 1px solid red;
@@ -171,6 +164,31 @@ PortStatus{
 ShipStatus{
   border-bottom: 2px solid lightgray;
 }
+
+DeckButton {
+  border: 0px;
+  text-align: left;
+  outline: none;
+}
+
+DeckButton:on {
+  background-color: lightgray;
+}
+
+DeckSelector {
+  border-bottom: 2px solid lightgray;
+}
+
+QProgressBar{
+    border: 1px solid gray;
+    border-radius: 2px;
+}
+
+QProgressBar::chunk{
+    background-color: lightgreen;
+    width: 10px;
+}
+
 """
 
 class ShipHp(QWidget):
@@ -178,7 +196,7 @@ class ShipHp(QWidget):
         super(ShipHp, self).__init__(parent)
         self.vbox = QVBoxLayout()
         self.vbox.setSpacing(0)
-        self.vbox.setContentsMargins(0,5,0,0)
+        self.vbox.setContentsMargins(0,3,0,3)
 
         self.setLayout(self.vbox)
         self.hp = QLabel(self)
@@ -186,7 +204,6 @@ class ShipHp(QWidget):
         self.vbox.addWidget(self.hp)
 
         self.hp_bar = QProgressBar(self)
-        self.hp_bar.setStyleSheet(HP_BAR_STYLE)
         self.vbox.addWidget(self.hp_bar)
         sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.hp_bar.setSizePolicy(sizePolicy)
@@ -353,7 +370,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     sc = QScrollArea()
-    sc.setStyleSheet(STYLE)
+    sc.setStyleSheet(PORT_STYLESHEET)
     sc.setWidgetResizable(True)
     st = PortStatus()
     st.on_status_change()
