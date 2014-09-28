@@ -5,7 +5,8 @@ import sqlite3
 
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QObject, QSize
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
-                             QSizePolicy, QLabel, QPushButton, QSpacerItem, QProgressBar)
+                             QSizePolicy, QLabel, QPushButton, QSpacerItem, QProgressBar,
+                             QScrollArea)
 from PyQt5.QtGui import QPixmap, QIcon, QColor
 import utils
 import model
@@ -88,13 +89,6 @@ class PortStatus(QWidget):
 
         self.ship_views = []
         self.now_deck = 1
-
-        sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.MinimumExpanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        self.setSizePolicy(sizePolicy)
-        self.setMinimumSize(QSize(500, 0))
-        self.setMaximumSize(QSize(800, 16777215))
 
         self.deckselector = DeckSelector(self.con, self)
         self.deckselector.deck_selected.connect(self.on_deck_selected)
@@ -226,11 +220,12 @@ class ShipSlot(QWidget):
 
         self.box = QHBoxLayout()
         self.setLayout(self.box)
-        self.box.addWidget(slotitem.IconBox(self.sloticon_table['MainCanonLight']))
 
     def set_slot(self, types):
+        # remove all icon
         for i in reversed(range(self.box.count())):
             self.box.itemAt(i).widget().setParent(None)
+
         for t in types:
             if not t in self.type_table: continue
             if not self.type_table[t] in self.sloticon_table: continue
@@ -275,7 +270,7 @@ class ShipStatus(QWidget):
         sizePolicy.setVerticalStretch(0)
         self.setSizePolicy(sizePolicy)
         self.setMinimumSize(QSize(500, 60))
-        self.setMaximumSize(QSize(500, 100))
+        self.setMaximumSize(QSize(500, 999))
 
     def set_ship(self, ship):
         if ship is None:
@@ -302,9 +297,12 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
 
+    sc = QScrollArea()
+    sc.setWidgetResizable(True)
     st = PortStatus()
     st.on_status_change()
-    st.show()
+    sc.setWidget(st)
+    sc.show()
 
     ret = app.exec_()
     app = None
