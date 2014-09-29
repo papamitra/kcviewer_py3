@@ -10,7 +10,7 @@ from PyQt5 import QtWebKit, QtNetwork
 import simplejson
 import os
 from ui.mainwindow import MainWindow
-from ui.ship_status_ui import PortStatus
+from ui.shipstatus import PortStatus
 
 class ProxyAccessManager(QNetworkAccessManager):
     def __init__(self,parent):
