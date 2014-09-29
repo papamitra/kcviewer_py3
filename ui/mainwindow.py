@@ -24,6 +24,7 @@ QWidget {
 
 PortStatus{
   border: 2px solid darkgray;
+  border-radius: 3px;
 }
 
 ShipStatus{
@@ -46,6 +47,7 @@ DeckSelector {
 
 ExpeditionBox {
   border: 2px solid darkgray;
+  border-radius: 3px;
 }
 
 /*
