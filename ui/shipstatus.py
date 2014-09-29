@@ -83,8 +83,8 @@ class DeckSelector(QWidget):
         s.drawPrimitive(QStyle.PE_Widget, opt, p, self)
 
 class PortStatus(QWidget):
-    def __init__(self):
-        super(PortStatus, self).__init__()
+    def __init__(self, parent):
+        super(PortStatus, self).__init__(parent)
         self.con = utils.connect_db()
 
         self.port = model.Port(self.con)

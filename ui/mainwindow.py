@@ -2,10 +2,11 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-                             QScrollArea)
+                             QScrollArea, QSpacerItem, QSizePolicy)
 from PyQt5.QtWebKitWidgets import QWebView
 
 from ui.shipstatus import PortStatus
+from ui.expedition import ExpeditionBox
 
 STYLESHEET = u"""
 QWidget {
@@ -17,12 +18,16 @@ QWidget {
 */
 }
 
+* {
+  font-family: "VL Gothic";
+}
+
 PortStatus{
-  border: 2px solid lightgray;
+  border: 2px solid darkgray;
 }
 
 ShipStatus{
-  border-bottom: 2px solid lightgray;
+  border-bottom: 2px solid darkgray;
 }
 
 DeckButton {
@@ -36,8 +41,18 @@ DeckButton:on {
 }
 
 DeckSelector {
-  border-bottom: 2px solid lightgray;
+  border-bottom: 2px solid darkgray;
 }
+
+ExpeditionBox {
+  border: 2px solid darkgray;
+}
+
+/*
+ExpeditionBox #hline {
+  border: 2px solid darkgray;
+}
+*/
 
 QProgressBar{
   border: 1px solid gray;
@@ -75,16 +90,24 @@ class MainWindow(QMainWindow):
         self.verticalLayout.addWidget(self.webView)
         self.setCentralWidget(self.centralWidget)
 
-        self.hbox = QHBoxLayout()
-        self.verticalLayout.addItem(self.hbox)
+        hbox = QHBoxLayout()
+        self.verticalLayout.addLayout(hbox)
 
-        self.portstatus = PortStatus()
+        self.portstatus = PortStatus(self)
 
         sc = QScrollArea()
         sc.setWidgetResizable(True)
         sc.setWidget(self.portstatus)
 
-        self.verticalLayout.addWidget(sc)
+        hbox.addWidget(sc)
+
+        expdbox = QVBoxLayout()
+        hbox.addLayout(expdbox)
+        expedition = ExpeditionBox(self)
+        expdbox.addWidget(expedition)
+        expdbox.addItem(QSpacerItem(40, 20,
+                                    QSizePolicy.Minimum,
+                                    QSizePolicy.Expanding))
 
         self.retranslateUi(MainWindow)
         #QtCore.QMetaObject.connectSlotsByName(MainWindow)

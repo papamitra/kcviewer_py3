@@ -2,7 +2,9 @@
 
 from PyQt5.QtCore import pyqtSlot, QTimer
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QFrame,
-                             QSizePolicy, QLabel, QPushButton, QSpacerItem)
+                             QSizePolicy, QLabel, QPushButton, QSpacerItem,
+                             QStyleOption, QStyle)
+from PyQt5.QtGui import QPainter
 
 import model
 import utils
@@ -46,7 +48,7 @@ class ExpeditionLabel(QLabel):
             self.setText(prefix + u'- ' + self.formattime(sec))
 
 class ExpeditionBox(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent):
         super(ExpeditionBox, self).__init__(parent)
 
         self.con = utils.connect_db()
@@ -61,7 +63,8 @@ class ExpeditionBox(QWidget):
         # horizontal line
         self.line = QFrame(self)
         self.line.setFrameShape(QFrame.HLine)
-        self.line.setFrameShadow(QFrame.Sunken)
+        #self.line.setFrameShadow(QFrame.Sunken)
+        self.line.setObjectName('hline')
         self.vbox.addWidget(self.line)
 
         for i in range(1, MAX_FLEET_NUM):
@@ -69,6 +72,14 @@ class ExpeditionBox(QWidget):
             self.vbox.addWidget(label)
 
         self.timer.start(1000)
+
+    # for apply stylesheet
+    def paintEvent(self, pe):
+        opt = QStyleOption()
+        opt.initFrom(self)
+        p = QPainter(self)
+        s = self.style()
+        s.drawPrimitive(QStyle.PE_Widget, opt, p, self)
 
 if __name__ == '__main__':
     import sys
