@@ -147,50 +147,6 @@ HP_FORMAT = u'<html><head/><body><p>HP: <span style="font-weight:600;">{0}</span
 
 COND_FORMAT=u'<html><head/><body><p>{0}<br/><span style="font-size:8pt;">condition</span></p></body></html>'
 
-PORT_STYLESHEET = u"""
-QWidget {
-/* for debug
-  border: 1px solid red;
-  padding: 0px;
-  margin-top: 0px;
-  margin-bottom: 0px;
-*/
-}
-
-PortStatus{
-  border: 2px solid lightgray;
-}
-
-ShipStatus{
-  border-bottom: 2px solid lightgray;
-}
-
-DeckButton {
-  border: 0px;
-  text-align: left;
-  outline: none;
-}
-
-DeckButton:on {
-  background-color: lightgray;
-}
-
-DeckSelector {
-  border-bottom: 2px solid lightgray;
-}
-
-QProgressBar{
-    border: 1px solid gray;
-    border-radius: 2px;
-}
-
-QProgressBar::chunk{
-    background-color: lightgreen;
-    width: 10px;
-}
-
-"""
-
 class ShipHp(QWidget):
     def __init__(self, parent):
         super(ShipHp, self).__init__(parent)
@@ -370,7 +326,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     sc = QScrollArea()
-    sc.setStyleSheet(PORT_STYLESHEET)
+    #sc.setStyleSheet(PORT_STYLESHEET)
     sc.setWidgetResizable(True)
     st = PortStatus()
     st.on_status_change()
