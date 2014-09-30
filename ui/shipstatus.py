@@ -34,12 +34,9 @@ class DeckButton(QPushButton):
         self.update()
 
     def update(self):
-        if self.isChecked():
-            con = self.parent.con
-            deck = model.Port(con).deck(self.deck_no)
-            self.setText('/' + deck.api_name)
-        else:
-            self.setText('/' + str(self.deck_no))
+        con = self.parent.con
+        deck = model.Port(con).deck(self.deck_no)
+        self.setText('/' + deck.api_name)
 
 class DeckSelector(QWidget):
     deck_selected = pyqtSignal(int)
