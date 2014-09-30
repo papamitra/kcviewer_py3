@@ -23,12 +23,12 @@ QWidget {
 }
 
 PortStatus{
-  border: 2px solid darkgray;
-  border-radius: 3px;
+  border: 1px solid lightgray;
+  border-radius: 0px;
 }
 
 ShipStatus{
-  border-bottom: 2px solid darkgray;
+  border-bottom: 1px solid lightgray;
 }
 
 DeckButton {
@@ -42,19 +42,17 @@ DeckButton:on {
 }
 
 DeckSelector {
-  border-bottom: 2px solid darkgray;
+  border-bottom: 1px solid lightgray;
 }
 
 ExpeditionBox {
-  border: 2px solid darkgray;
-  border-radius: 3px;
+  border: 1px solid lightgray;
+  border-radius: 0px;
 }
 
-/*
 ExpeditionBox #hline {
-  border: 2px solid darkgray;
+  color: lightgray;
 }
-*/
 
 QProgressBar{
   border: 1px solid gray;
