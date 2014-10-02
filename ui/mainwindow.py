@@ -4,71 +4,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QScrollArea, QSpacerItem, QSizePolicy)
 from PyQt5.QtWebKitWidgets import QWebView
+from PyQt5.QtCore import QFile
 
 from ui.shipstatus import PortStatus
 from ui.expedition import ExpeditionBox
-
-STYLESHEET = u"""
-QWidget {
-/* for debug
-  border: 1px solid red;
-  padding: 0px;
-  margin-top: 0px;
-  margin-bottom: 0px;
-*/
-}
-
-* {
-  font-family: "VL Gothic";
-}
-
-PortStatus{
-  border: 1px solid lightgray;
-  border-radius: 0px;
-}
-
-ShipStatus{
-  border-bottom: 1px solid lightgray;
-}
-
-DeckButton {
-  border: 0px;
-  text-align: left;
-  outline: none;
-}
-
-DeckButton:on {
-  background-color: lightgray;
-}
-
-DeckSelector {
-  border-bottom: 1px solid lightgray;
-}
-
-ExpeditionBox {
-  border: 1px solid lightgray;
-  border-radius: 0px;
-}
-
-ExpeditionBox #hline {
-  color: lightgray;
-}
-
-QProgressBar{
-  border: 1px solid gray;
-  border-radius: 2px;
-}
-
-QProgressBar::chunk{
-  background-color: lightgreen;
-  width: 10px;
-}
-
-QScrollArea {
-  outline: none;
-  border: none;
-}
-"""
+import resource
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -112,7 +52,10 @@ class MainWindow(QMainWindow):
         self.retranslateUi(MainWindow)
         #QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-        self.setStyleSheet(STYLESHEET)
+        file = QFile(':/ui/stylesheet.css')
+        file.open(QFile.ReadOnly)
+        stylesheet = unicode(file.readAll(), encoding='utf8')
+        self.setStyleSheet(stylesheet)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate

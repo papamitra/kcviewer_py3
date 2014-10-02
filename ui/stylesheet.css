@@ -1,0 +1,59 @@
+QWidget {
+/* for debug
+  border: 1px solid red;
+  padding: 0px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+*/
+}
+
+* {
+  font-family: "VL Gothic";
+}
+
+PortStatus{
+  border: 1px solid lightgray;
+  border-radius: 0px;
+}
+
+ShipStatus{
+  border-bottom: 1px solid lightgray;
+}
+
+DeckButton {
+  border: 0px;
+  text-align: left;
+  outline: none;
+}
+
+DeckButton:on {
+  background-color: lightgray;
+}
+
+DeckSelector {
+  border-bottom: 1px solid lightgray;
+}
+
+ExpeditionBox {
+  border: 1px solid lightgray;
+  border-radius: 0px;
+}
+
+ExpeditionBox #hline {
+  color: lightgray;
+}
+
+QProgressBar{
+  border: 1px solid gray;
+  border-radius: 2px;
+}
+
+QProgressBar::chunk{
+  background-color: lightgreen;
+  width: 10px;
+}
+
+QScrollArea {
+  outline: none;
+  border: none;
+}
