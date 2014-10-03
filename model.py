@@ -1,5 +1,8 @@
 
 import utils
+import db
+
+db.initialize()
 
 class TableMapper(object):
     """ metaclass to create readonly ORM class"""
