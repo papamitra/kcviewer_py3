@@ -167,10 +167,20 @@ class ShipHp(QWidget):
                                       QSizePolicy.Minimum,
                                       QSizePolicy.Expanding))
 
+        self.setProperty('status', 'dameged')
+
     def set_hp(self, hp, maxhp):
         self.hp.setText(HP_FORMAT.format(hp, maxhp))
         self.hp_bar.setValue(hp*100/maxhp)
         self.hp_bar.setFormat('')
+
+    # for apply stylesheet
+    def paintEvent(self, pe):
+        opt = QStyleOption()
+        opt.initFrom(self)
+        p = QPainter(self)
+        s = self.style()
+        s.drawPrimitive(QStyle.PE_Widget, opt, p, self)
 
 class ShipCondition(QWidget):
     def __init__(self, parent):

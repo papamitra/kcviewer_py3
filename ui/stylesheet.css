@@ -43,14 +43,22 @@ ExpeditionBox #hline {
   color: lightgray;
 }
 
-QProgressBar{
+ShipHp QProgressBar{
   border: 1px solid gray;
   border-radius: 2px;
 }
 
-QProgressBar::chunk{
+ShipHp QProgressBar::chunk{
   background-color: lightgreen;
   width: 10px;
+}
+
+ShipHp[status="dameged"] QProgressBar::chunk{
+  background-color: orange;
+}
+
+ShipHp[status="broken"] QProgressBar::chunk{
+  background-color: red;
 }
 
 QScrollArea {
