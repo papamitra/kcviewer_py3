@@ -34,10 +34,11 @@ class KCMaster(controller.Master):
 class KCProxy(object):
     def __init__(self, on_receive = None):
         config = ProxyConfig(
+            port = 12345,
             confdir = "./cert"
             #    cacert = os.path.expanduser("~/.mitmproxy/mitmproxy-ca.pem"),
         )
-        server = ProxyServer(config, 12345, '127.0.0.1')
+        server = ProxyServer(config)
         self.master = KCMaster(server, on_receive)
 
     def run(self):

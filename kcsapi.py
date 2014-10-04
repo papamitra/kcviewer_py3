@@ -34,13 +34,15 @@ class KcsApi(object):
         """ http raw response to ApiMessage"""
 
         try:
-            if re.search("application/json", msg.headers["Content-Type"][0]):
-                js = simplejson.loads(msg.content)
-                return ApiMessage(msg.flow.request.path, js)
-            elif re.search("text/plain", msg.headers["Content-Type"][0]):
+            res = msg.response
+            req = msg.request
+            if re.search("application/json", res.headers["Content-Type"][0]):
+                js = simplejson.loads(res.content)
+                return ApiMessage(req.path, js)
+            elif re.search("text/plain", res.headers["Content-Type"][0]):
                 if 0 == msg.content.index("svdata="):
-                    js = simplejson.loads(msg.content[len("svdata="):])
-                    return ApiMessage(msg.flow.request.path, js)
+                    js = simplejson.loads(res.content[len("svdata="):])
+                    return ApiMessage(req.path, js)
         except Exception, e:
                 print(e)
 
