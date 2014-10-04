@@ -4,7 +4,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QScrollArea, QSpacerItem, QSizePolicy)
 from PyQt5.QtWebKitWidgets import QWebView
-from PyQt5.QtCore import QFile
+from PyQt5.QtCore import QFile, QSize
 
 from ui.shipstatus import PortStatus
 from ui.expedition import ExpeditionBox
@@ -24,9 +24,14 @@ class MainWindow(QMainWindow):
         self.centralWidget.setObjectName("centralWidget")
         self.verticalLayout = QVBoxLayout(self.centralWidget)
         self.verticalLayout.setObjectName("verticalLayout")
+
         self.webView = QWebView(self.centralWidget)
         self.webView.setUrl(QtCore.QUrl("about:blank"))
         self.webView.setObjectName("webView")
+        self.webView.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
+                                               QSizePolicy.MinimumExpanding))
+        self.webView.setMinimumSize(QSize(800, 600))
+
         self.verticalLayout.addWidget(self.webView)
         self.setCentralWidget(self.centralWidget)
 
