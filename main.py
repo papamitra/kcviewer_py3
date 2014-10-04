@@ -63,6 +63,7 @@ if __name__ == '__main__':
         url = QUrl('https://google.com/')
 
     app = QApplication(sys.argv)
+    app.setApplicationName('kcviewer')
 
     global signal_emitter
     signal_emitter = qtsignal.Signal()

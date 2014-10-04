@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import Qt, QUrl, pyqtSlot, QSettings, QIODevice, QFile, QMetaObject
+from PyQt5.QtCore import (Qt, QUrl, pyqtSlot, QSettings, QIODevice, QFile,
+                          QMetaObject, QStandardPaths)
 from PyQt5.QtWidgets import (QAction, QApplication, QWidget, QMainWindow)
-from PyQt5.QtNetwork import QNetworkProxy, QNetworkProxyFactory, QNetworkAccessManager, QSslConfiguration, QSslCertificate, QSsl
+from PyQt5.QtNetwork import (QNetworkProxy, QNetworkProxyFactory, QNetworkAccessManager,
+                             QSslConfiguration, QSslCertificate, QSsl,
+                             QNetworkDiskCache)
 from PyQt5.QtWebKitWidgets import QWebView
 from PyQt5 import QtWebKit, QtNetwork
+from PyQt5.QtGui import QDesktopServices
 
 import simplejson
 import os
@@ -43,13 +47,19 @@ class KCView(MainWindow):
         am = ProxyAccessManager(self)
         self.webView.page().setNetworkAccessManager(am)
 
+        disk_cache = QNetworkDiskCache()
+        cache_location = QStandardPaths.writableLocation(QStandardPaths.CacheLocation)
+        print(cache_location)
+        disk_cache.setCacheDirectory(cache_location)
+        am.setCache(disk_cache)
+
         web_setting = QtWebKit.QWebSettings.globalSettings()
         web_setting.setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
         #web_setting.setAttribute(QtWebKit.QWebSettings.DnsPrefetchEnabled, True)
         web_setting.setAttribute(QtWebKit.QWebSettings.JavascriptEnabled, True)
         #web_setting.setAttribute(QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
-        #web_setting.setAttribute(QtWebKit.QWebSettings.OfflineStorageDatabaseEnabled, True)
-        #web_setting.setAttribute(QtWebKit.QWebSettings.LocalStorageEnabled, True)
+        web_setting.setAttribute(QtWebKit.QWebSettings.OfflineStorageDatabaseEnabled, True)
+        web_setting.setAttribute(QtWebKit.QWebSettings.LocalStorageEnabled, True)
 
         self.webView.load(url)
         self.webView.show()
