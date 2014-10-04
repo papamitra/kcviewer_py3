@@ -48,8 +48,8 @@ class MainWindow(QMainWindow):
 
         expdbox = QVBoxLayout()
         hbox.addLayout(expdbox)
-        expedition = ExpeditionBox(self)
-        expdbox.addWidget(expedition)
+        self.expedition = ExpeditionBox(self)
+        expdbox.addWidget(self.expedition)
         expdbox.addItem(QSpacerItem(40, 20,
                                     QSizePolicy.Minimum,
                                     QSizePolicy.Expanding))

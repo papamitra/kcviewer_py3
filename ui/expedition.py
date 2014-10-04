@@ -66,12 +66,18 @@ class ExpeditionBox(QWidget):
         #self.line.setFrameShadow(QFrame.Sunken)
         self.line.setObjectName('hline')
         self.vbox.addWidget(self.line)
+        self.fleets = []
 
         for i in range(1, MAX_FLEET_NUM):
             label = ExpeditionLabel(self, i+1)
             self.vbox.addWidget(label)
-
+            self.fleets.append(label)
         self.timer.start(1000)
+
+    @pyqtSlot()
+    def on_status_change(self):
+        for fleet in self.fleets:
+            fleet.reload()
 
     # for apply stylesheet
     def paintEvent(self, pe):
