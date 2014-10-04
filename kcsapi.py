@@ -40,7 +40,7 @@ class KcsApi(object):
                 js = simplejson.loads(res.content)
                 return ApiMessage(req.path, js)
             elif re.search("text/plain", res.headers["Content-Type"][0]):
-                if 0 == msg.content.index("svdata="):
+                if 0 == res.content.index("svdata="):
                     js = simplejson.loads(res.content[len("svdata="):])
                     return ApiMessage(req.path, js)
         except Exception, e:
