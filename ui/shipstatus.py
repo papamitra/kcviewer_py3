@@ -167,12 +167,23 @@ class ShipHp(QWidget):
                                       QSizePolicy.Minimum,
                                       QSizePolicy.Expanding))
 
-        self.setProperty('status', 'dameged')
-
     def set_hp(self, hp, maxhp):
         self.hp.setText(HP_FORMAT.format(hp, maxhp))
         self.hp_bar.setValue(hp*100/maxhp)
         self.hp_bar.setFormat('')
+        rate = float(hp) / float(maxhp)
+        if rate <= 0.25:
+            self.setProperty('damage', 'serious')
+        elif rate <= 0.50:
+            self.setProperty('damage', 'middle')
+        elif rate <= 0.75:
+            self.setProperty('damage', 'slight')
+        else:
+            self.setProperty('damage', 'none')
+
+        self.style().unpolish(self.hp_bar)
+        self.style().polish(self.hp_bar)
+        self.update()
 
     # for apply stylesheet
     def paintEvent(self, pe):

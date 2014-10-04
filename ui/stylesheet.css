@@ -53,11 +53,15 @@ ShipHp QProgressBar::chunk{
   width: 10px;
 }
 
-ShipHp[status="dameged"] QProgressBar::chunk{
+ShipHp[damage="slight"] QProgressBar::chunk{
+  background-color: yellow;
+}
+
+ShipHp[damage="middle"] QProgressBar::chunk{
   background-color: orange;
 }
 
-ShipHp[status="broken"] QProgressBar::chunk{
+ShipHp[damage="serious"] QProgressBar::chunk{
   background-color: red;
 }
 
