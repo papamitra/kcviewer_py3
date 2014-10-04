@@ -197,21 +197,47 @@ class ShipCondition(QWidget):
     def __init__(self, parent):
         super(ShipCondition, self).__init__(parent)
         self.hbox = QHBoxLayout()
-        self.hbox.setSpacing(0)
+        self.hbox.setSpacing(3)
         self.hbox.setContentsMargins(0,0,0,10)
 
         self.setLayout(self.hbox)
-        self.pixmap = QLabel()
-        self.hbox.addWidget(self.pixmap)
+        self.cond_signal = QWidget(self)
+        self.cond_signal.setObjectName('condition_signal')
+        self.cond_signal.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,
+                                                   QSizePolicy.Fixed))
+        self.cond_signal.setMinimumSize(QSize(20,20))
+        self.cond_signal.setMaximumSize(QSize(20,20))
+        self.hbox.addWidget(self.cond_signal)
+
         self.cond = QLabel(self)
         self.hbox.addWidget(self.cond)
 
+        self.setProperty('condition', 'normal')
+
     def set_cond(self, cond):
-        pixmap = QPixmap(20,20)
-        pixmap.fill(QColor('yellow'))
-        self.pixmap.setPixmap(pixmap)
         self.cond.setText(COND_FORMAT.format(str(cond)))
-        pass
+        if cond <= 20:
+            self.setProperty('condition', 'serious tired')
+        elif cond <= 29:
+            self.setProperty('condition', 'middle tired')
+        elif cond <= 39:
+            self.setProperty('condition', 'slight tired')
+        elif cond <= 49:
+            self.setProperty('condition', 'normal')
+        else:
+            self.setProperty('condition', 'good')
+
+        self.style().unpolish(self.cond_signal)
+        self.style().polish(self.cond_signal)
+        self.update()
+
+    # for apply stylesheet
+    def paintEvent(self, pe):
+        opt = QStyleOption()
+        opt.initFrom(self)
+        p = QPainter(self)
+        s = self.style()
+        s.drawPrimitive(QStyle.PE_Widget, opt, p, self)
 
 class ShipSlot(QWidget):
     sloticon_table = None

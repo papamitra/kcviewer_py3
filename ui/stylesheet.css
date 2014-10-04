@@ -65,6 +65,26 @@ ShipHp[damage="serious"] QProgressBar::chunk{
   background-color: red;
 }
 
+ShipCondition[condition="serious tired"] #condition_signal{
+  background-color: red;
+}
+
+ShipCondition[condition="middle tired"] #condition_signal{
+  background-color: orange;
+}
+
+ShipCondition[condition="slight tired"] #condition_signal{
+  background-color: white;
+}
+
+ShipCondition[condition="normal"] #condition_signal{
+  background-color: white;
+}
+
+ShipCondition[condition="good"] #condition_signal{
+  background-color: lightgreen;
+}
+
 QScrollArea {
   outline: none;
   border: none;
