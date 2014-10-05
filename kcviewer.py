@@ -16,7 +16,7 @@ import os
 from ui.mainwindow import MainWindow
 
 class ProxyAccessManager(QNetworkAccessManager):
-    def __init__(self,parent):
+    def __init__(self, proxy_port, parent):
         super(ProxyAccessManager, self).__init__(parent)
 
         ssl_config = QSslConfiguration.defaultConfiguration()
@@ -36,7 +36,7 @@ class ProxyAccessManager(QNetworkAccessManager):
         proxy = QNetworkProxy()
         proxy.setType(QNetworkProxy.HttpProxy);
         proxy.setHostName("localhost");
-        proxy.setPort(12345);
+        proxy.setPort(proxy_port);
         #QNetworkProxy.setApplicationProxy(proxy);
         self.setProxy(proxy)
 
@@ -67,10 +67,10 @@ class CookieJar(QNetworkCookieJar):
         self.setAllCookies(cookies)
 
 class KCView(MainWindow):
-    def __init__(self, url):
+    def __init__(self, proxy_port, url):
         super(KCView, self).__init__()
 
-        am = ProxyAccessManager(self)
+        am = ProxyAccessManager(proxy_port, self)
         self.webView.page().setNetworkAccessManager(am)
 
         disk_cache = QNetworkDiskCache()
