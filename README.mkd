@@ -1,0 +1,9 @@
+
+# kcviewer
+
+## ライセンス
+
+MITライセンスです。
+
+装備アイコンはGrabacr07氏の著作物です。
+https://github.com/Grabacr07/KanColleViewer
