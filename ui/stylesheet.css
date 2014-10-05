@@ -85,6 +85,10 @@ ShipCondition[condition="good"] #condition_signal{
   background-color: lightgreen;
 }
 
+MainWindow QListWidget{
+    border: none;
+}
+
 QScrollArea {
   outline: none;
   border: none;

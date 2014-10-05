@@ -2,13 +2,41 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-                             QScrollArea, QSpacerItem, QSizePolicy)
+                             QScrollArea, QSpacerItem, QSizePolicy, QListWidget,
+                             QStackedLayout)
 from PyQt5.QtWebKitWidgets import QWebView
 from PyQt5.QtCore import QFile, QSize
 
 from ui.shipstatus import PortStatus
 from ui.expedition import ExpeditionBox
 import resource
+
+class StatusPage(QWidget):
+    def __init__(self, parent):
+        super(StatusPage, self).__init__(parent)
+
+        hbox = QHBoxLayout()
+        self.setLayout(hbox)
+
+        self.portstatus = PortStatus(self)
+        sc = QScrollArea()
+        sc.setWidgetResizable(True)
+        sc.setWidget(self.portstatus)
+
+        hbox.addWidget(sc)
+
+        expdbox = QVBoxLayout()
+        hbox.addLayout(expdbox)
+        self.expedition = ExpeditionBox(self)
+        expdbox.addWidget(self.expedition)
+        expdbox.addItem(QSpacerItem(40, 20,
+                                    QSizePolicy.Minimum,
+                                    QSizePolicy.Expanding))
+
+class SettingPage(QWidget):
+    def __init__(self, parent):
+        super(SettingPage, self).__init__(parent)
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -38,21 +66,27 @@ class MainWindow(QMainWindow):
         hbox = QHBoxLayout()
         self.verticalLayout.addLayout(hbox)
 
-        self.portstatus = PortStatus(self)
+        self.list_widget = QListWidget(self)
+        self.list_widget.addItem(u'状態')
+        self.list_widget.addItem(u'設定')
+        self.list_widget.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,
+                                                   QSizePolicy.MinimumExpanding))
+        self.list_widget.setMinimumSize(QSize(100, 100))
+        self.list_widget.setMaximumSize(QSize(100, 9999))
 
-        sc = QScrollArea()
-        sc.setWidgetResizable(True)
-        sc.setWidget(self.portstatus)
+        hbox.addWidget(self.list_widget)
 
-        hbox.addWidget(sc)
+        self.stacked_layout = QStackedLayout(self)
+        hbox.addLayout(self.stacked_layout)
 
-        expdbox = QVBoxLayout()
-        hbox.addLayout(expdbox)
-        self.expedition = ExpeditionBox(self)
-        expdbox.addWidget(self.expedition)
-        expdbox.addItem(QSpacerItem(40, 20,
-                                    QSizePolicy.Minimum,
-                                    QSizePolicy.Expanding))
+        self.status_page = StatusPage(self)
+        self.stacked_layout.addWidget(self.status_page)
+
+        self.setting_page = SettingPage(self)
+        self.stacked_layout.addWidget(self.setting_page)
+
+        self.list_widget.currentRowChanged.connect(self.stacked_layout.setCurrentIndex)
+        self.list_widget.setCurrentRow(0)
 
         self.retranslateUi(MainWindow)
         #QtCore.QMetaObject.connectSlotsByName(MainWindow)

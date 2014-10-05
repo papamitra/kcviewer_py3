@@ -74,8 +74,8 @@ if __name__ == '__main__':
     browser = kcviewer.KCView(proxythread.proxy.port(), url)
 
     # FIXME
-    signal_emitter.api_port.connect(browser.portstatus.on_status_change)
-    signal_emitter.api_port.connect(browser.expedition.on_status_change)
+    signal_emitter.api_port.connect(browser.status_page.portstatus.on_status_change)
+    signal_emitter.api_port.connect(browser.status_page.expedition.on_status_change)
 
     #proxythread.receive_msg.connect(browser.on_receive)
 
