@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtCore import (Qt, QUrl, pyqtSlot, QSettings, QIODevice, QFile,
-                          QMetaObject, QStandardPaths, QVariant)
+                          QMetaObject, QStandardPaths, QVariant, QDateTime)
 from PyQt5.QtWidgets import (QAction, QApplication, QWidget, QMainWindow)
 from PyQt5.QtNetwork import (QNetworkProxy, QNetworkProxyFactory, QNetworkAccessManager,
                              QSslConfiguration, QSslCertificate, QSsl,
@@ -53,11 +53,18 @@ class CookieJar(QNetworkCookieJar):
         self.setAllCookies([QNetworkCookie.parseCookies(c)[0] for c in data])
 
     def save(self):
+        self.remove_expired_cookies()
         lines = []
         for cookie in self.allCookies():
             if not cookie.isSessionCookie():
                 lines.append(cookie.toRawForm())
         self.cookie_store.setValue('cookies', QVariant(lines))
+
+    def remove_expired_cookies(self):
+        now = QDateTime.currentDateTime()
+        cookies = [c for c in self.allCookies()
+                   if c.isSessionCookie() or c.expirationDate() >= now]
+        self.setAllCookies(cookies)
 
 class KCView(MainWindow):
     def __init__(self, url):
