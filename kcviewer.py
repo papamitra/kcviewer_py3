@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtCore import (Qt, QUrl, pyqtSlot, QSettings, QIODevice, QFile,
-                          QMetaObject, QStandardPaths)
+                          QMetaObject, QStandardPaths, QVariant)
 from PyQt5.QtWidgets import (QAction, QApplication, QWidget, QMainWindow)
 from PyQt5.QtNetwork import (QNetworkProxy, QNetworkProxyFactory, QNetworkAccessManager,
                              QSslConfiguration, QSslCertificate, QSsl,
-                             QNetworkDiskCache)
+                             QNetworkDiskCache, QNetworkCookieJar, QNetworkCookie)
 from PyQt5.QtWebKitWidgets import QWebView
 from PyQt5 import QtWebKit, QtNetwork
 from PyQt5.QtGui import QDesktopServices
@@ -40,6 +40,25 @@ class ProxyAccessManager(QNetworkAccessManager):
         #QNetworkProxy.setApplicationProxy(proxy);
         self.setProxy(proxy)
 
+class CookieJar(QNetworkCookieJar):
+    def __init__(self):
+        super(CookieJar, self).__init__()
+
+        cookie_location = os.path.join(QStandardPaths.writableLocation(QStandardPaths.DataLocation) ,'cookies.ini')
+        self.cookie_store = QSettings(cookie_location, QSettings.IniFormat)
+        self.load()
+
+    def load(self):
+        data = self.cookie_store.value('cookies', [])
+        self.setAllCookies([QNetworkCookie.parseCookies(c)[0] for c in data])
+
+    def save(self):
+        lines = []
+        for cookie in self.allCookies():
+            if not cookie.isSessionCookie():
+                lines.append(cookie.toRawForm())
+        self.cookie_store.setValue('cookies', QVariant(lines))
+
 class KCView(MainWindow):
     def __init__(self, url):
         super(KCView, self).__init__()
@@ -49,9 +68,11 @@ class KCView(MainWindow):
 
         disk_cache = QNetworkDiskCache()
         cache_location = QStandardPaths.writableLocation(QStandardPaths.CacheLocation)
-        print(cache_location)
         disk_cache.setCacheDirectory(cache_location)
         am.setCache(disk_cache)
+
+        self.cookiejar = CookieJar()
+        am.setCookieJar(self.cookiejar)
 
         web_setting = QtWebKit.QWebSettings.globalSettings()
         web_setting.setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
@@ -66,6 +87,10 @@ class KCView(MainWindow):
 
     def on_receive(self, msg):
         print('kcview:', msg)
+
+    def closeEvent(self, ev):
+        self.cookiejar.save()
+        super(KCView,self).closeEvent(ev)
 
 def main():
 
