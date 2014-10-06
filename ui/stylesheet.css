@@ -93,3 +93,7 @@ QScrollArea {
   outline: none;
   border: none;
 }
+
+QLineEdit {
+  border: none;
+}
