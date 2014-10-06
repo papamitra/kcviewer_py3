@@ -3,7 +3,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QScrollArea, QSpacerItem, QSizePolicy, QListWidget,
-                             QStackedLayout)
+                             QStackedLayout, QLineEdit)
 from PyQt5.QtWebKitWidgets import QWebView
 from PyQt5.QtCore import QFile, QSize
 
@@ -37,6 +37,19 @@ class SettingPage(QWidget):
     def __init__(self, parent):
         super(SettingPage, self).__init__(parent)
 
+        vbox = QVBoxLayout()
+        self.setLayout(vbox)
+
+        self.location_edit = QLineEdit(self)
+        self.location_edit.setSizePolicy(QSizePolicy.Expanding,
+                                         self.location_edit.sizePolicy().verticalPolicy())
+        #self.locationEdit.returnPressed.connect(self.changeLocation)
+
+        vbox.addWidget(self.location_edit)
+
+        vbox.addItem(QSpacerItem(40, 20,
+                                 QSizePolicy.Minimum,
+                                 QSizePolicy.Expanding))
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -96,7 +109,11 @@ class MainWindow(QMainWindow):
         stylesheet = unicode(file.readAll(), encoding='utf8')
         self.setStyleSheet(stylesheet)
 
+        self.webView.loadFinished.connect(self.adjust_location)
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "KCViewer"))
 
+    def adjust_location(self):
+        self.setting_page.location_edit.setText(self.webView.url().toString())
