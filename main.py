@@ -60,7 +60,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         url = QUrl(sys.argv[1])
     else:
-        url = QUrl('https://google.com/')
+        url = QUrl(r'http://www.dmm.com/netgame/social/application/-/detail/=/app_id=854854/')
 
     app = QApplication(sys.argv)
     app.setApplicationName('kcviewer')
