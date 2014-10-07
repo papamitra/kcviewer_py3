@@ -84,11 +84,7 @@ class KCView(MainWindow):
 
         web_setting = QtWebKit.QWebSettings.globalSettings()
         web_setting.setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
-        #web_setting.setAttribute(QtWebKit.QWebSettings.DnsPrefetchEnabled, True)
         web_setting.setAttribute(QtWebKit.QWebSettings.JavascriptEnabled, True)
-        #web_setting.setAttribute(QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
-        web_setting.setAttribute(QtWebKit.QWebSettings.OfflineStorageDatabaseEnabled, True)
-        web_setting.setAttribute(QtWebKit.QWebSettings.LocalStorageEnabled, True)
 
         self.webView.load(url)
         self.webView.show()
