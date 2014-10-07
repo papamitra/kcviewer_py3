@@ -50,7 +50,8 @@ class CookieJar(QNetworkCookieJar):
 
     def load(self):
         data = self.cookie_store.value('cookies', [])
-        self.setAllCookies([QNetworkCookie.parseCookies(c)[0] for c in data])
+        if data:
+            self.setAllCookies([QNetworkCookie.parseCookies(c)[0] for c in data])
 
     def save(self):
         self.remove_expired_cookies()
