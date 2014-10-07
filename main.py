@@ -54,7 +54,7 @@ class ApiThread(threading.Thread):
 
         print('ApiThread ...done')
 
-if __name__ == '__main__':
+def main():
     import sys
 
     if len(sys.argv) > 1:
@@ -85,3 +85,6 @@ if __name__ == '__main__':
     proxythread.stop()
 
     sys.exit(ret)
+
+if __name__ == '__main__':
+    main()
