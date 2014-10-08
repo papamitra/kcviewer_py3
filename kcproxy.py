@@ -33,10 +33,12 @@ class KCMaster(controller.Master):
 
 class KCProxy(object):
     def __init__(self, on_receive = None):
+        upstream = os.environ.get('http_proxy')
         config = ProxyConfig(
             port = 0,
+            mode = 'upstream' if upstream else None,
+            upstream_server = cmdline.parse_server_spec(upstream) if upstream else None,
             confdir = "./cert"
-            #    cacert = os.path.expanduser("~/.mitmproxy/mitmproxy-ca.pem"),
         )
         self.server = ProxyServer(config)
         self.master = KCMaster(self.server, on_receive)
