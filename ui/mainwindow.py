@@ -71,7 +71,7 @@ class MainWindow(QMainWindow):
         self.webView.setObjectName("webView")
         self.webView.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                                                QSizePolicy.MinimumExpanding))
-        self.webView.setMinimumSize(QSize(800, 600))
+        self.webView.setMinimumSize(QSize(960, 560))
 
         self.verticalLayout.addWidget(self.webView)
         self.setCentralWidget(self.centralWidget)
