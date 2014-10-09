@@ -234,6 +234,15 @@ def create_sloticontable():
             path_elm = trg.find('p:Setter/p:Setter.Value/p:ControlTemplate/p:Path',namespaces=ns)
             if path_elm is not None:
                 table[name] = SlotIcon([path_elm])
+
+    try:
+        path = tree.find(r'.//p:Path', namespaces=ns)
+        path.attrib['Fill'] = 'gray'
+        unknown_icon = SlotIcon([path])
+        table['unknown'] = unknown_icon
+    except Exception as e:
+        print(e)
+
     return table
 
 # for test
@@ -244,26 +253,15 @@ class MainWidget(QWidget):
         self.box = QVBoxLayout()
         self.setLayout(self.box)
 
-        tree = ET.parse('ui/SlotItemIcon.xml')
-        triggers = tree.findall(r'.//p:Trigger', namespaces=ns)
+        table = create_sloticontable()
+        self.hbox = None
 
         try:
-            i = 0
-            for trg in triggers:
-                if i == 0:
-                    hbox = QHBoxLayout()
-                    self.box.addLayout(hbox)
-                viewbox = trg.find('p:Setter/p:Setter.Value/p:ControlTemplate/p:Viewbox',namespaces=ns)
-                if viewbox is not None:
-                    grid = viewbox.find('p:Grid', namespaces=ns)
-                    if grid is not None:
-                        hbox.addWidget(IconBox(SlotIcon([elm for elm in grid], grid), self))
-                else:
-                    path_elm = trg.find('p:Setter/p:Setter.Value/p:ControlTemplate/p:Path',namespaces=ns)
-                    if path_elm is not None:
-                        hbox.addWidget(IconBox(SlotIcon([path_elm]),self))
-                i += 1
-                i = i % 5
+            for (i,k) in  enumerate(list(table)):
+                if i%5 == 0:
+                    self.hbox = QHBoxLayout()
+                    self.box.addLayout(self.hbox)
+                self.hbox.addWidget(IconBox(table[k],self))
         except None as e:
             print(e)
 
