@@ -289,10 +289,10 @@ class ShipSlot(QWidget):
             self.box.itemAt(i).widget().setParent(None)
 
         for t in types:
-            if not t in self.type_table: continue
-            if not self.type_table[t] in self.sloticon_table: continue
-            type_str = self.type_table[t]
-            self.box.addWidget(slotitem.IconBox(self.sloticon_table[type_str]))
+            type_name = self.type_table.get(t, 'unknown')
+            if not type_name in self.sloticon_table:
+                type_name = 'unknown'
+            self.box.addWidget(slotitem.IconBox(self.sloticon_table[type_name]))
 
 class ShipStatus(QWidget):
     def __init__(self, parent):
