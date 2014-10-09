@@ -113,7 +113,6 @@ class PortStatus(QWidget):
 
     @pyqtSlot()
     def on_status_change(self):
-        print("on_status_change")
         deck = self.port.deck(self.now_deck)
         for (i,ship) in enumerate(deck.ships()):
             ui = self.ship_views[i]
@@ -125,7 +124,6 @@ class PortStatus(QWidget):
         self.on_status_change()
 
     def closeEvent(self, event):
-        print("close event");
         self.con.close()
         event.accept()
 
@@ -347,10 +345,8 @@ class ShipStatus(QWidget):
 
         item_types = []
         for slot_id in ship.slot:
-            print(slot_id)
             if slot_id == -1: continue
             slotitem = model.SlotItem(self.con, slot_id)
-            print(slotitem)
             item_types.append(slotitem.item_type[3])
         self.slot.set_slot(item_types)
 
