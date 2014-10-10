@@ -22,7 +22,7 @@ def cmd_parser(data):
     m = re.match(p, data)
     if m is None:
         raise ParseError('cmd_parser', data)
-    return (m.group(1).lower(), data[len(m.group(0)):])
+    return (m.group(1), data[len(m.group(0)):])
 
 def point_parser(data):
     nump = r'(-?[0-9]+\.[0-9]*|-?\.[0-9]+|-?[0-9]+)'
@@ -40,11 +40,23 @@ class PathBuilder(object):
         super(PathBuilder, self).__init__()
 
     def cmd_m(self, path, data):
+        pos = path.currentPosition()
+        ((x,y), data) = point_parser(data)
+        path.moveTo(pos.x() + x, pos.y() + y)
+        return data
+
+    def cmd_M(self, path, data):
         ((x,y), data) = point_parser(data)
         path.moveTo(x, y)
         return data
 
     def cmd_l(self, path, data):
+        pos = path.currentPosition()
+        ((x,y), data) = point_parser(data)
+        path.lineTo(pos.x() + x, pos.y() + y)
+        return data
+
+    def cmd_L(self, path, data):
         ((x,y), data) = point_parser(data)
         path.lineTo(x,y)
         return data
@@ -52,13 +64,13 @@ class PathBuilder(object):
     def cmd_h(self, path, data):
         pos = path.currentPosition()
         (x, data) = num_parser(data)
-        path.lineTo(x, pos.y)
+        path.lineTo(x, pos.y())
         return data
 
     def cmd_v(self, path, data):
         pos = path.currentPosition()
         (y, data) = num_parser(data)
-        path.lineTo(pos.x, y)
+        path.lineTo(pos.x(), y)
         return data
 
     def cmd_c(self, path, data):
@@ -112,23 +124,40 @@ class PathBuilder(object):
         data = data.replace('\r\n', ' ')
 
         cmds = { 'm': self.cmd_m,
+                 'M': self.cmd_M,
                  'l': self.cmd_l,
+                 'L': self.cmd_L,
                  'h': self.cmd_h,
+                 'H': self.cmd_h,
                  'v': self.cmd_v,
+                 'V': self.cmd_v,
                  'c': self.cmd_c,
+                 'C': self.cmd_c,
                  'q': self.cmd_q,
+                 'Q': self.cmd_q,
                  's': self.cmd_s,
+                 'S': self.cmd_s,
                  't': self.cmd_t,
-                 'z': self.cmd_z}
+                 'T': self.cmd_t,
+                 'z': self.cmd_z,
+                 'Z': self.cmd_z,
+        }
 
         path = QPainterPath()
         last_parser = None
         last_cp = None # (controlpoint, endpoint) of last Bezier curve
 
+        cmd = ''
+
         while(True):
             while(last_parser is not None):
                 try:
-                    data = last_parser(path, data)
+                    if cmd == 'm':
+                        data = self.cmd_l(path,data)
+                    elif cmd == 'M':
+                        data = self.cmd_L(path,data)
+                    else:
+                        data = last_parser(path, data)
                 except ParseError:
                     break
 
@@ -140,10 +169,10 @@ class PathBuilder(object):
             if not cmd in cmds:
                 raise ParseError('unkonw command: ' + cmd, data)
             data = cmds[cmd](path, data)
-            if cmd != 'z':
+            if cmd.lower() != 'z':
                 last_parser = cmds[cmd]
 
-            if not cmd in ['c','q','s','t']:
+            if not cmd.lower() in ['c','q','s','t']:
                 last_cp = None
 
 def test():
