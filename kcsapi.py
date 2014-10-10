@@ -7,6 +7,8 @@ import re
 import simplejson
 import utils
 import db
+import threading
+import Queue
 
 def get_cols(con, table_name):
     cur = con.cursor()
@@ -21,6 +23,11 @@ class ApiMessage(object):
 class KcsApi(object):
 
     def __init__(self):
+        super(KcsApi, self).__init__()
+
+    def initialize(self):
+        #call this function under same thread that invoke dispatch()
+
         db.initialize()
 
         self.debug_con = utils.connect_debug_db()
@@ -29,8 +36,7 @@ class KcsApi(object):
         self.tables = [r[0] for r in self.con.execute(u'select name from sqlite_master where type="table";')]
         self.table_cols = {t:get_cols(self.con, t) for t in self.tables}
 
-    @staticmethod
-    def parse_respose(msg):
+    def parse_response(self, msg):
         """ http raw response to ApiMessage"""
 
         try:
@@ -100,6 +106,36 @@ class KcsApi(object):
                     self.insert_or_replace('api_slotitem', msg.json['api_data'])
             except Exception, e:
                 print("%s failed: %s" % (msg.path, str(e)))
+
+class KcsApiThread(KcsApi, threading.Thread):
+    def __init__(self, on_dispatch = None):
+        super(KcsApiThread, self).__init__()
+
+        self.input_queue = Queue.Queue()
+        self.on_dispatch = on_dispatch
+
+    def request_dispatch(self, msg):
+        api_msg = self.parse_response(msg)
+        if api_msg:
+            self.input_queue.put(api_msg)
+
+    def stop(self):
+        self.input_queue.put(None)
+        self.join()
+
+    def run(self):
+        self.initialize()
+
+        print('ApiThread start...')
+        while True:
+            d = self.input_queue.get()
+            if d is None:
+                break
+            self.dispatch(d)
+            if self.on_dispatch:
+                self.on_dispatch(d)
+
+        print('ApiThread ...done')
 
 # for debug
 def parse_debug_db(where = None):

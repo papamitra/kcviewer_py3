@@ -8,51 +8,21 @@ import threading
 
 import kcproxy
 import kcviewer
-import Queue
-from kcsapi import KcsApi
+from kcsapi import KcsApiThread
 import qtsignal
 
 class ProxyThread(threading.Thread):
-    #receive_msg = pyqtSignal(QVariant)
 
-    def __init__(self, parent=None):
-        super(ProxyThread, self).__init__(parent)
-        self.proxy = kcproxy.KCProxy(on_receive = self.on_receive)
+    def __init__(self, on_receive=None):
+        super(ProxyThread, self).__init__()
+        self.proxy = kcproxy.KCProxy(on_receive = on_receive)
 
     def run(self):
-        self.input_queue = Queue.Queue()
-        self.api_thread = ApiThread(self.input_queue)
-        self.api_thread.start()
         self.proxy.run()
-
-    def on_receive(self, msg):
-        api_msg = KcsApi.parse_respose(msg)
-        if api_msg:
-            self.input_queue.put(api_msg)
 
     def stop(self):
         self.proxy.shutdown()
-        self.input_queue.put(None)
-        self.api_thread.join()
         self.join()
-
-class ApiThread(threading.Thread):
-    def __init__(self, intput_queue):
-        super(ApiThread, self).__init__()
-        self.input_queue = intput_queue
-
-    def run(self):
-        global signal_emitter
-        kcsapi = KcsApi()
-        print('ApiThread start...')
-        while True:
-            d = self.input_queue.get()
-            if d is None:
-                break
-            kcsapi.dispatch(d)
-            signal_emitter.dispatch(d)
-
-        print('ApiThread ...done')
 
 def main():
     import sys
@@ -65,10 +35,12 @@ def main():
     app = QApplication(sys.argv)
     app.setApplicationName('kcviewer')
 
-    global signal_emitter
     signal_emitter = qtsignal.Signal()
 
-    proxythread = ProxyThread()
+    apithread = KcsApiThread(signal_emitter.dispatch)
+    proxythread = ProxyThread(on_receive = apithread.request_dispatch)
+
+    apithread.start()
     proxythread.start()
 
     browser = kcviewer.KCView(proxythread.proxy.port(), url)
@@ -77,12 +49,11 @@ def main():
     signal_emitter.api_port.connect(browser.status_page.portstatus.on_status_change)
     signal_emitter.api_port.connect(browser.status_page.expedition.on_status_change)
 
-    #proxythread.receive_msg.connect(browser.on_receive)
-
     browser.show()
 
     ret = app.exec_()
     proxythread.stop()
+    apithread.stop()
 
     sys.exit(ret)
 
