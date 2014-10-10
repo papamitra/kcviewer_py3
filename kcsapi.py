@@ -37,12 +37,10 @@ class KcsApi(object):
             res = msg.response
             req = msg.request
             if re.search("application/json", res.headers["Content-Type"][0]):
-                js = simplejson.loads(res.content)
-                return ApiMessage(req.path, js)
+                return ApiMessage(req.path, res.content)
             elif re.search("text/plain", res.headers["Content-Type"][0]):
                 if 0 == res.content.index("svdata="):
-                    js = simplejson.loads(res.content[len("svdata="):])
-                    return ApiMessage(req.path, js)
+                    return ApiMessage(req.path, res.content[len("svdata="):])
         except Exception, e:
                 print(e)
 
@@ -69,6 +67,13 @@ class KcsApi(object):
 
     def dispatch(self, msg, debug_out=True):
         """ dispatch api message """
+
+        try:
+            js = simplejson.loads(msg.json)
+            msg = ApiMessage(msg.path, js)
+        except Exception as e:
+            print(e)
+            return
 
         if debug_out:
             self.debug_out(msg)
