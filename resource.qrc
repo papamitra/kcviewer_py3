@@ -1,5 +1,8 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
     <file>ui/stylesheet.css</file>
+    <file>icons/photo.png</file>
+    <file>icons/mute.png</file>
+    <file>icons/volume.png</file>
 </qresource>
 </RCC>
