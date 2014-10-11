@@ -97,3 +97,7 @@ QScrollArea {
 QLineEdit {
   border: none;
 }
+
+QPushButton#screenshot {
+  border-image: url(:/icons/photo.png) 0 0 0 0;
+}

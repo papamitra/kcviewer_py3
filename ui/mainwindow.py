@@ -78,8 +78,17 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.centralWidget)
 
         status_box = QHBoxLayout()
+        status_box.setContentsMargins(0,0,0,0)
         self.verticalLayout.addLayout(status_box)
+
+        status_box.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
         take_ss = QPushButton(self)
+        take_ss.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,
+                                          QSizePolicy.Fixed))
+        take_ss.setMinimumSize(QSize(40, 40))
+        take_ss.setMaximumSize(QSize(40, 40))
+
+        take_ss.setObjectName('screenshot')
         status_box.addWidget(take_ss)
         take_ss.clicked.connect(self.take_screenshot)
 
