@@ -66,14 +66,14 @@ class MainWindow(QMainWindow):
         self.verticalLayout = QVBoxLayout(self.centralWidget)
         self.verticalLayout.setObjectName("verticalLayout")
 
-        self.webView = QWebView(self.centralWidget)
-        self.webView.setUrl(QtCore.QUrl("about:blank"))
-        self.webView.setObjectName("webView")
-        self.webView.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
+        self.web_view = QWebView(self.centralWidget)
+        self.web_view.setUrl(QtCore.QUrl("about:blank"))
+        self.web_view.setObjectName("web_view")
+        self.web_view.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                                                QSizePolicy.MinimumExpanding))
-        self.webView.setMinimumSize(QSize(960, 560))
+        self.web_view.setMinimumSize(QSize(960, 560))
 
-        self.verticalLayout.addWidget(self.webView)
+        self.verticalLayout.addWidget(self.web_view)
         self.setCentralWidget(self.centralWidget)
 
         hbox = QHBoxLayout()
@@ -109,11 +109,11 @@ class MainWindow(QMainWindow):
         stylesheet = unicode(file.readAll(), encoding='utf8')
         self.setStyleSheet(stylesheet)
 
-        self.webView.loadFinished.connect(self.adjust_location)
+        self.web_view.loadFinished.connect(self.adjust_location)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "KCViewer"))
 
     def adjust_location(self):
-        self.setting_page.location_edit.setText(self.webView.url().toString())
+        self.setting_page.location_edit.setText(self.web_view.url().toString())

@@ -72,7 +72,7 @@ class KCView(MainWindow):
         super(KCView, self).__init__()
 
         am = ProxyAccessManager(proxy_port, self)
-        self.webView.page().setNetworkAccessManager(am)
+        self.web_view.page().setNetworkAccessManager(am)
 
         disk_cache = QNetworkDiskCache()
         cache_location = QStandardPaths.writableLocation(QStandardPaths.CacheLocation)
@@ -86,8 +86,8 @@ class KCView(MainWindow):
         web_setting.setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
         web_setting.setAttribute(QtWebKit.QWebSettings.JavascriptEnabled, True)
 
-        self.webView.load(url)
-        self.webView.show()
+        self.web_view.load(url)
+        self.web_view.show()
 
     def closeEvent(self, ev):
         self.cookiejar.save()
