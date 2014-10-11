@@ -89,9 +89,6 @@ class KCView(MainWindow):
         self.webView.load(url)
         self.webView.show()
 
-    def on_receive(self, msg):
-        print('kcview:', msg)
-
     def closeEvent(self, ev):
         self.cookiejar.save()
         super(KCView,self).closeEvent(ev)

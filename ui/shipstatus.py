@@ -47,13 +47,11 @@ class DeckSelector(QWidget):
         self.decks = []
         self.deck_layout = QHBoxLayout()
         self.setLayout(self.deck_layout)
-        #self.setStyleSheet(DECK_STYLESHEET)
 
         self.update()
         self.show()
 
     def on_deck_selected(self, deck_no):
-        print("on_deck_Selected", deck_no)
         for deck in self.decks:
             if deck.deck_no != deck_no:
                 deck.setChecked(False)
