@@ -15,11 +15,6 @@ def get_cols(con, table_name):
     cur.execute(u'select * from ' + table_name)
     return [col[0] for col in cur.description]
 
-class ApiMessage(object):
-    def __init__(self, path, json):
-        self.path = path
-        self.json = json
-
 class KcsApi(object):
 
     def __init__(self):
@@ -43,20 +38,20 @@ class KcsApi(object):
             res = msg.response
             req = msg.request
             if re.search("application/json", res.headers["Content-Type"][0]):
-                return ApiMessage(req.path, res.content)
+                return (req.path, res.content)
             elif re.search("text/plain", res.headers["Content-Type"][0]):
                 if 0 == res.content.index("svdata="):
-                    return ApiMessage(req.path, res.content[len("svdata="):])
+                    return (req.path, res.content[len("svdata="):])
         except Exception, e:
                 print(e)
 
         return None
 
-    def debug_out(self, msg):
+    def debug_out(self, path, json):
         """ insert ApiMessage into debug DB """
 
         sql = u"insert into msg values (datetime('now'), ? , ?)"
-        self.debug_con.execute(sql, (msg.path, sqlite3.Binary(pickle.dumps(msg.json))))
+        self.debug_con.execute(sql, (path, sqlite3.Binary(pickle.dumps(json))))
 
     def insert_or_replace(self, table_name, data, conv={}):
         """ insert json data into table with data converting if needed """
@@ -74,38 +69,39 @@ class KcsApi(object):
     def dispatch(self, msg, debug_out=True):
         """ dispatch api message """
 
+        (path, data) = msg
+
         try:
-            js = simplejson.loads(msg.json)
-            msg = ApiMessage(msg.path, js)
+            json = simplejson.loads(data)
         except Exception as e:
             print(e)
             return
 
         if debug_out:
-            self.debug_out(msg)
+            self.debug_out(path, json)
 
-        if msg.path == u'/kcsapi/api_start2':
+        if path == u'/kcsapi/api_start2':
             try:
                 with self.con:
-                    self.insert_or_replace('api_mst_ship', msg.json['api_data']['api_mst_ship'])
-                    self.insert_or_replace('api_mst_slotitem', msg.json['api_data']['api_mst_slotitem'])
+                    self.insert_or_replace('api_mst_ship', json['api_data']['api_mst_ship'])
+                    self.insert_or_replace('api_mst_slotitem', json['api_data']['api_mst_slotitem'])
             except Exception, e:
                 print("dispatch failed: " + str(e))
 
-        elif msg.path == u'/kcsapi/api_port/port':
+        elif path == u'/kcsapi/api_port/port':
             try:
                 with self.con:
-                    self.insert_or_replace('api_ship', msg.json['api_data']['api_ship'])
-                    self.insert_or_replace('api_deck_port', msg.json['api_data']['api_deck_port'])
+                    self.insert_or_replace('api_ship', json['api_data']['api_ship'])
+                    self.insert_or_replace('api_deck_port', json['api_data']['api_deck_port'])
             except Exception, e:
-                print("%s failed: %s" % (msg.path, str(e)))
+                print("%s failed: %s" % (path, str(e)))
 
-        elif msg.path == u'/kcsapi/api_get_member/slot_item':
+        elif path == u'/kcsapi/api_get_member/slot_item':
             try:
                 with self.con:
-                    self.insert_or_replace('api_slotitem', msg.json['api_data'])
+                    self.insert_or_replace('api_slotitem', json['api_data'])
             except Exception, e:
-                print("%s failed: %s" % (msg.path, str(e)))
+                print("%s failed: %s" % (path, str(e)))
 
 class KcsApiThread(KcsApi, threading.Thread):
     def __init__(self, on_dispatch = None):
@@ -133,7 +129,8 @@ class KcsApiThread(KcsApi, threading.Thread):
                 break
             self.dispatch(d)
             if self.on_dispatch:
-                self.on_dispatch(d)
+                (path, _) = d
+                self.on_dispatch(path)
 
         print('ApiThread ...done')
 
