@@ -35,7 +35,7 @@ def main():
     app = QApplication(sys.argv)
     app.setApplicationName('kcviewer')
 
-    signal_emitter = qtsignal.Signal()
+    signal_emitter = qtsignal.SignalEmitter()
 
     apithread = KcsApiThread(signal_emitter.dispatch)
     proxythread = ProxyThread(on_receive = apithread.request_dispatch)
