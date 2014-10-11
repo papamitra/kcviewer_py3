@@ -3,9 +3,10 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QScrollArea, QSpacerItem, QSizePolicy, QListWidget,
-                             QStackedLayout, QLineEdit)
+                             QStackedLayout, QLineEdit, QPushButton)
 from PyQt5.QtWebKitWidgets import QWebView
 from PyQt5.QtCore import QFile, QSize
+from PyQt5.QtGui import QPixmap, QImage, QPainter
 
 from ui.shipstatus import PortStatus
 from ui.expedition import ExpeditionBox
@@ -76,6 +77,12 @@ class MainWindow(QMainWindow):
         self.verticalLayout.addWidget(self.web_view)
         self.setCentralWidget(self.centralWidget)
 
+        status_box = QHBoxLayout()
+        self.verticalLayout.addLayout(status_box)
+        take_ss = QPushButton(self)
+        status_box.addWidget(take_ss)
+        take_ss.clicked.connect(self.take_screenshot)
+
         hbox = QHBoxLayout()
         self.verticalLayout.addLayout(hbox)
 
@@ -114,6 +121,14 @@ class MainWindow(QMainWindow):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "KCViewer"))
+
+    def take_screenshot(self, clicked):
+        frame = self.web_view.page().mainFrame()
+        image = QImage(frame.contentsSize(), QImage.Format_ARGB32)
+        painter = QPainter(image)
+        frame.render(painter)
+        painter.end()
+        image.save('test.png')
 
     def adjust_location(self):
         self.setting_page.location_edit.setText(self.web_view.url().toString())
