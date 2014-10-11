@@ -123,12 +123,16 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(_translate("MainWindow", "KCViewer"))
 
     def take_screenshot(self, clicked):
-        frame = self.web_view.page().mainFrame()
-        image = QImage(frame.contentsSize(), QImage.Format_ARGB32)
-        painter = QPainter(image)
-        frame.render(painter)
-        painter.end()
-        image.save('test.png')
+        frames = self.web_view.page().mainFrame().childFrames()
+        for frame in frames:
+            if frame.frameName() != 'game_frame': continue
+            swf = frame.findFirstElement('embed#externalswf')
+            if not swf.isNull():
+                image = QImage(swf.geometry().size(), QImage.Format_ARGB32)
+                painter = QPainter(image)
+                swf.render(painter)
+                painter.end()
+                image.save('test.png')
 
     def adjust_location(self):
         self.setting_page.location_edit.setText(self.web_view.url().toString())
