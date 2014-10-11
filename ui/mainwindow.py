@@ -71,8 +71,9 @@ class MainWindow(QMainWindow):
         self.web_view.setUrl(QtCore.QUrl("about:blank"))
         self.web_view.setObjectName("web_view")
         self.web_view.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
-                                               QSizePolicy.MinimumExpanding))
+                                                QSizePolicy.Fixed))
         self.web_view.setMinimumSize(QSize(960, 560))
+        self.web_view.setMaximumSize(QSize(960, 560))
 
         self.verticalLayout.addWidget(self.web_view)
         self.setCentralWidget(self.centralWidget)
