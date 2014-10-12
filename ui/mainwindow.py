@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QScrollArea, QSpacerItem, QSizePolicy, QListWidget,
                              QStackedLayout, QLineEdit, QPushButton)
 from PyQt5.QtWebKitWidgets import QWebView, QWebPage
-from PyQt5.QtCore import QFile, QSize, QStandardPaths, QTemporaryFile, QFileDevice, QIODevice
+from PyQt5.QtCore import Qt, QFile, QSize, QStandardPaths, QTemporaryFile, QFileDevice, QIODevice
 from PyQt5.QtGui import QPixmap, QImage, QPainter, QIcon
 
 from ui.shipstatus import PortStatus
@@ -76,9 +76,12 @@ class MainWindow(QMainWindow):
                                                 QSizePolicy.Fixed))
         self.web_view.setMinimumSize(QSize(960, 560))
         self.web_view.setMaximumSize(QSize(9999, 560))
+        #self.web_view.page().mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
+        #self.web_view.page().mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
 
         self.verticalLayout.addWidget(self.web_view)
         self.verticalLayout.setContentsMargins(0,0,0,0)
+        self.verticalLayout.setSpacing(0)
 
         self.setCentralWidget(self.centralWidget)
 
@@ -142,28 +145,34 @@ class MainWindow(QMainWindow):
         stylesheet = unicode(file.readAll(), encoding='utf8')
         self.setStyleSheet(stylesheet)
 
-        self.web_view.loadFinished.connect(self.adjust_location)
+        self.web_view.loadFinished.connect(self.on_load_finish)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "KCViewer"))
+
+    def swf_elm(self):
+        frames = self.web_view.page().mainFrame().childFrames()
+        for frame in frames:
+            if frame.frameName() != 'game_frame': continue
+            swf = frame.findFirstElement('embed#externalswf')
+            if not swf.isNull():
+                return swf
+        return None
 
     def take_screenshot(self, clicked):
         import datetime,tempfile
         now = datetime.datetime.now()
         pic_location = QStandardPaths.writableLocation(QStandardPaths.PicturesLocation)
 
-        frames = self.web_view.page().mainFrame().childFrames()
-        for frame in frames:
-            if frame.frameName() != 'game_frame': continue
-            swf = frame.findFirstElement('embed#externalswf')
-            if not swf.isNull():
-                image = QImage(swf.geometry().size(), QImage.Format_ARGB32)
-                painter = QPainter(image)
-                swf.render(painter)
-                painter.end()
-                image.save(os.path.join(pic_location, 'kcviewer-{0}-{1}.png'.format(now.strftime('%Y%m%d%H%M%S'),
-                                                                                    str(uuid.uuid4())[:8])))
+        swf = self.swf.elm()
+        if swf:
+            image = QImage(swf.geometry().size(), QImage.Format_ARGB32)
+            painter = QPainter(image)
+            swf.render(painter)
+            painter.end()
+            image.save(os.path.join(pic_location, 'kcviewer-{0}-{1}.png'.format(now.strftime('%Y%m%d%H%M%S'),
+                                                                                str(uuid.uuid4())[:8])))
 
     def toggle_mute(self, clicked):
         if os.name == 'posix':
@@ -172,3 +181,22 @@ class MainWindow(QMainWindow):
 
     def adjust_location(self):
         self.setting_page.location_edit.setText(self.web_view.url().toString())
+
+    def adjust_frame(self):
+        swf = self.swf_elm()
+        if swf:
+            print('adjust_rect')
+            print(swf.geometry())
+            geom = swf.geometry()
+
+            game_frame = self.web_view.page().mainFrame().findFirstElement('iframe#game_frame')
+            gf_geom = game_frame.geometry()
+            geom.translate(gf_geom.x(), gf_geom.y())
+            self.web_view.page().setActualVisibleContentRect(geom)
+
+            self.web_view.setMinimumSize(9999, geom.size().y())
+            self.web_view.setMaximumSize(geom.size())
+
+    def on_load_finish(self):
+        self.adjust_location()
+        #self.adjust_frame()
