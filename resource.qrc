@@ -4,5 +4,8 @@
     <file>icons/photo.png</file>
     <file>icons/mute.png</file>
     <file>icons/volume.png</file>
+    <file>icons/photo.svg</file>
+    <file>icons/mute.svg</file>
+    <file>icons/volume.svg</file>
 </qresource>
 </RCC>

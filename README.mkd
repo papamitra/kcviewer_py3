@@ -6,5 +6,7 @@
 MITライセンスです。
 
 装備アイコンはGrabacr07氏の著作物です。
-
 https://github.com/Grabacr07/KanColleViewer
+
+その他のアイコンは以下のサイトのものを利用しています。
+http://ionicons.com/

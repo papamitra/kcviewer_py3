@@ -4,13 +4,15 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QScrollArea, QSpacerItem, QSizePolicy, QListWidget,
                              QStackedLayout, QLineEdit, QPushButton)
-from PyQt5.QtWebKitWidgets import QWebView
-from PyQt5.QtCore import QFile, QSize
+from PyQt5.QtWebKitWidgets import QWebView, QWebPage
+from PyQt5.QtCore import QFile, QSize, QStandardPaths, QTemporaryFile, QFileDevice, QIODevice
 from PyQt5.QtGui import QPixmap, QImage, QPainter
+from PyQt5.QtMultimedia import QAudioOutput, QAudioDeviceInfo, QAudio
 
 from ui.shipstatus import PortStatus
 from ui.expedition import ExpeditionBox
 import resource
+import os
 
 class StatusPage(QWidget):
     def __init__(self, parent):
@@ -73,7 +75,7 @@ class MainWindow(QMainWindow):
         self.web_view.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                                                 QSizePolicy.Fixed))
         self.web_view.setMinimumSize(QSize(960, 560))
-        self.web_view.setMaximumSize(QSize(960, 560))
+        self.web_view.setMaximumSize(QSize(9999, 560))
 
         self.verticalLayout.addWidget(self.web_view)
         self.setCentralWidget(self.centralWidget)
@@ -83,6 +85,18 @@ class MainWindow(QMainWindow):
         self.verticalLayout.addLayout(status_box)
 
         status_box.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+
+        volume = QPushButton(self)
+        volume.setCheckable(True)
+        volume.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,
+                                          QSizePolicy.Fixed))
+        volume.setMinimumSize(QSize(40, 40))
+        volume.setMaximumSize(QSize(40, 40))
+
+        volume.setObjectName('volume')
+        status_box.addWidget(volume)
+        volume.clicked.connect(self.toggle_mute)
+
         take_ss = QPushButton(self)
         take_ss.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,
                                           QSizePolicy.Fixed))
@@ -133,6 +147,10 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(_translate("MainWindow", "KCViewer"))
 
     def take_screenshot(self, clicked):
+        import datetime,tempfile
+        now = datetime.datetime.now()
+        pic_location = QStandardPaths.writableLocation(QStandardPaths.PicturesLocation)
+
         frames = self.web_view.page().mainFrame().childFrames()
         for frame in frames:
             if frame.frameName() != 'game_frame': continue
@@ -142,7 +160,17 @@ class MainWindow(QMainWindow):
                 painter = QPainter(image)
                 swf.render(painter)
                 painter.end()
-                image.save('test.png')
+                (fileno, tmppath) = tempfile.mkstemp(prefix=now.strftime('%Y%m%d%H%M%S-'),
+                                                     suffix='.png',
+                                                     dir=pic_location)
+                qfile = QFile()
+                qfile.open(fileno, QIODevice.WriteOnly, QFileDevice.AutoCloseHandle)
+                image.save(qfile, 'png')
+
+    def toggle_mute(self, clicked):
+        if os.name == 'posix':
+            import alsaaudio
+            print(alsaaudio.mixers())
 
     def adjust_location(self):
         self.setting_page.location_edit.setText(self.web_view.url().toString())
