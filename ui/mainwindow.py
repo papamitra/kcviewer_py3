@@ -7,7 +7,6 @@ from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 from PyQt5.QtCore import QFile, QSize, QStandardPaths, QTemporaryFile, QFileDevice, QIODevice
 from PyQt5.QtGui import QPixmap, QImage, QPainter, QIcon
-from PyQt5.QtMultimedia import QAudioOutput, QAudioDeviceInfo, QAudio
 
 from ui.shipstatus import PortStatus
 from ui.expedition import ExpeditionBox
