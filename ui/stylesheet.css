@@ -99,15 +99,16 @@ QLineEdit {
 }
 
 QPushButton#screenshot {
-  border-image: url(:/icons/photo.png) stretch;
+  border-image: url(:/icons/photo.svg) 10 10 10 10 stretch stretch;
+  outline: none;
 }
 
 QPushButton#volume {
-  border-image: url(:/icons/volume.png) 0 0 0 0;
+  border-image: url(:/icons/volume.svg) 10 10 10 10  stretch stretch;
   outline: none;
 }
 
 QPushButton#volume:on {
-  border-image: url(:/icons/mute.png) 0 0 0 0;
+  border-image: url(:/icons/mute.svg) 10 10 10 10 stretch stretch;
   outline: none;
 }

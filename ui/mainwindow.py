@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QStackedLayout, QLineEdit, QPushButton)
 from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 from PyQt5.QtCore import QFile, QSize, QStandardPaths, QTemporaryFile, QFileDevice, QIODevice
-from PyQt5.QtGui import QPixmap, QImage, QPainter
+from PyQt5.QtGui import QPixmap, QImage, QPainter, QIcon
 from PyQt5.QtMultimedia import QAudioOutput, QAudioDeviceInfo, QAudio
 
 from ui.shipstatus import PortStatus
@@ -78,6 +78,8 @@ class MainWindow(QMainWindow):
         self.web_view.setMaximumSize(QSize(9999, 560))
 
         self.verticalLayout.addWidget(self.web_view)
+        self.verticalLayout.setContentsMargins(0,0,0,0)
+
         self.setCentralWidget(self.centralWidget)
 
         status_box = QHBoxLayout()
