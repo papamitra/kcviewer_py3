@@ -12,6 +12,7 @@ from ui.shipstatus import PortStatus
 from ui.expedition import ExpeditionBox
 import resource
 import os
+import uuid
 
 class StatusPage(QWidget):
     def __init__(self, parent):
@@ -161,12 +162,8 @@ class MainWindow(QMainWindow):
                 painter = QPainter(image)
                 swf.render(painter)
                 painter.end()
-                (fileno, tmppath) = tempfile.mkstemp(prefix=now.strftime('%Y%m%d%H%M%S-'),
-                                                     suffix='.png',
-                                                     dir=pic_location)
-                qfile = QFile()
-                qfile.open(fileno, QIODevice.WriteOnly, QFileDevice.AutoCloseHandle)
-                image.save(qfile, 'png')
+                image.save(os.path.join(pic_location, 'kcviewer-{0}-{1}.png'.format(now.strftime('%Y%m%d%H%M%S'),
+                                                                                    str(uuid.uuid4())[:8])))
 
     def toggle_mute(self, clicked):
         if os.name == 'posix':
