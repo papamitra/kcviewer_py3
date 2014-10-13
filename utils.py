@@ -10,8 +10,10 @@ def connect_db():
     con.row_factory = sqlite3.Row
     return con
 
-def connect_debug_db():
-    con = sqlite3.connect('kcsapi_debug.db', isolation_level=None)
+def connect_debug_db(dbname = None):
+    if dbname is None:
+        dbname = 'kcsapi_debug.db'
+    con = sqlite3.connect(dbname, isolation_level=None)
     con.row_factory = sqlite3.Row
     return con
 

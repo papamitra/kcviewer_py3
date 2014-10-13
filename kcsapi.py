@@ -135,8 +135,8 @@ class KcsApiThread(KcsApi, threading.Thread):
         print('ApiThread ...done')
 
 # for debug
-def parse_debug_db(where = None):
-    con = utils.connect_debug_db()
+def parse_debug_db(dbname = None, where = None):
+    con = utils.connect_debug_db(dbname)
     c = con.cursor()
     c.execute('select * from msg' + (where if where else ''))
     debug_data = [(row[0], row[1], pickle.loads(str(row[2]))) for row in c]
