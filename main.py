@@ -13,9 +13,9 @@ import qtsignal
 
 class ProxyThread(threading.Thread):
 
-    def __init__(self, on_receive=None):
+    def __init__(self, on_response=None, on_request=None):
         super(ProxyThread, self).__init__()
-        self.proxy = kcproxy.KCProxy(on_receive = on_receive)
+        self.proxy = kcproxy.KCProxy(on_response = on_response, on_request = on_request)
 
     def run(self):
         self.proxy.run()
@@ -38,7 +38,8 @@ def main():
     signal_emitter = qtsignal.SignalEmitter()
 
     apithread = KcsApiThread(signal_emitter.dispatch)
-    proxythread = ProxyThread(on_receive = apithread.request_dispatch)
+    proxythread = ProxyThread(on_response = apithread.on_response,
+                              on_request = apithread.on_request)
 
     apithread.start()
     proxythread.start()

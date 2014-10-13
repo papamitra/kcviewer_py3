@@ -9,9 +9,10 @@ import re
 import simplejson
 
 class KCMaster(controller.Master):
-    def __init__(self, server, on_receive = None):
+    def __init__(self, server, on_response=None, on_request=None):
         controller.Master.__init__(self, server)
-        self.on_receive = on_receive
+        self.on_response = on_response
+        self.on_request = on_request
 
     def run(self):
         try:
@@ -20,19 +21,22 @@ class KCMaster(controller.Master):
             self.shutdown()
 
     def handle_request(self, msg):
+        if self.on_request:
+            self.on_request(msg)
+
         msg.reply()
         return msg
 
     def handle_response(self, msg):
-        if self.on_receive:
-            self.on_receive(msg)
+        if self.on_response:
+            self.on_response(msg)
 
         msg.reply()
         return msg
 
 
 class KCProxy(object):
-    def __init__(self, on_receive = None):
+    def __init__(self, on_response=None, on_request=None):
         upstream = os.environ.get('http_proxy')
         config = ProxyConfig(
             port = 0,
@@ -41,7 +45,7 @@ class KCProxy(object):
             confdir = "./cert"
         )
         self.server = ProxyServer(config)
-        self.master = KCMaster(self.server, on_receive)
+        self.master = KCMaster(self.server, on_response, on_request)
 
     def run(self):
         self.master.run()

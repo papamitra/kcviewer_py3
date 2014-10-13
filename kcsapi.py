@@ -32,7 +32,7 @@ class KcsApi(object):
         self.table_cols = {t:get_cols(self.con, t) for t in self.tables}
 
     def parse_response(self, msg):
-        """ http raw response to ApiMessage"""
+        """ parse http raw response"""
 
         try:
             res = msg.response
@@ -42,6 +42,21 @@ class KcsApi(object):
             elif re.search("text/plain", res.headers["Content-Type"][0]):
                 if 0 == res.content.index("svdata="):
                     return (req.path, res.content[len("svdata="):])
+        except Exception, e:
+                print(e)
+
+        return None
+
+    def parse_request(self, msg):
+        """ parse http raw request"""
+
+        try:
+            req = msg.request
+            if re.search("application/json", req.headers["Content-Type"][0]):
+                return (req.path, req.content)
+            elif re.search("text/plain", req.headers["Content-Type"][0]):
+                if 0 == res.content.index("svdata="):
+                    return (req.path, req.content[len("svdata="):])
         except Exception, e:
                 print(e)
 
@@ -117,10 +132,14 @@ class KcsApiThread(KcsApi, threading.Thread):
         self.input_queue = Queue.Queue()
         self.on_dispatch = on_dispatch
 
-    def request_dispatch(self, msg):
+    def on_response(self, msg):
         api_msg = self.parse_response(msg)
         if api_msg:
             self.input_queue.put(api_msg)
+
+    def on_request(self, msg):
+        #print((msg.request.path, msg.request.content))
+        pass
 
     def stop(self):
         self.input_queue.put(None)
