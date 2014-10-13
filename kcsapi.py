@@ -103,6 +103,13 @@ class KcsApi(object):
             except Exception, e:
                 print("%s failed: %s" % (path, str(e)))
 
+        elif path == u'/kcsapi/api_get_member/ship2':
+            try:
+                with self.con:
+                    self.insert_or_replace('api_ship', json['api_data'])
+            except Exception, e:
+                print("%s failed: %s" % (path, str(e)))
+
 class KcsApiThread(KcsApi, threading.Thread):
     def __init__(self, on_dispatch = None):
         super(KcsApiThread, self).__init__()
