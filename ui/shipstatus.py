@@ -189,6 +189,59 @@ class ShipHp(QWidget):
         s = self.style()
         s.drawPrimitive(QStyle.PE_Widget, opt, p, self)
 
+class FuelBulletMeter(QWidget):
+    def __init__(self, parent):
+        super(FuelBulletMeter, self).__init__(parent)
+
+        self.vbox = QVBoxLayout()
+        self.vbox.setSpacing(0)
+        self.vbox.setContentsMargins(0,3,0,3)
+
+        self.setLayout(self.vbox)
+
+        self.fuel_bar = QProgressBar(self)
+        self.vbox.addWidget(self.fuel_bar)
+
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.fuel_bar.setSizePolicy(sizePolicy)
+        self.fuel_bar.setMinimumSize(QSize(80, 10))
+        self.fuel_bar.setMaximumSize(QSize(80, 10))
+
+        self.bullet_bar = QProgressBar(self)
+        self.vbox.addWidget(self.bullet_bar)
+        self.bullet_bar.setSizePolicy(sizePolicy)
+        self.bullet_bar.setMinimumSize(QSize(80, 10))
+        self.bullet_bar.setMaximumSize(QSize(80, 10))
+
+    def set_bar(self, widget, val, val_max):
+        widget.setValue(val*100/val_max)
+        widget.setFormat('')
+        rate = float(val) / float(val_max)
+        if rate <= 0.3:
+            widget.setProperty('amount', 'empty')
+        elif rate <= 0.7:
+            widget.setProperty('amount', 'half')
+        elif rate < 1.0:
+            widget.setProperty('amount', 'normal')
+        else:
+            widget.setProperty('amount', 'full')
+
+        self.style().unpolish(widget)
+        self.style().polish(widget)
+
+    def set_val(self, ship):
+        self.set_bar(self.fuel_bar, ship.fuel, ship.fuel_max)
+        self.set_bar(self.bullet_bar, ship.bull, ship.bull_max)
+
+    # for apply stylesheet
+    def paintEvent(self, pe):
+        opt = QStyleOption()
+        opt.initFrom(self)
+        p = QPainter(self)
+        s = self.style()
+        s.drawPrimitive(QStyle.PE_Widget, opt, p, self)
+
+
 class ShipCondition(QWidget):
     def __init__(self, parent):
         super(ShipCondition, self).__init__(parent)
@@ -305,7 +358,6 @@ class ShipStatus(QWidget):
         self.name.setMinimumSize(QSize(80, 30))
         self.name.setMaximumSize(QSize(80, 30))
 
-
         self.lv = QLabel(self)
         self.hbox.addWidget(self.lv)
         self.lv.setMinimumSize(QSize(60, 30))
@@ -318,6 +370,9 @@ class ShipStatus(QWidget):
         self.cond.setMinimumSize(QSize(80, 50))
         self.cond.setMaximumSize(QSize(80, 50))
         self.hbox.addWidget(self.cond)
+
+        self.fuelbull = FuelBulletMeter(self)
+        self.hbox.addWidget(self.fuelbull)
 
         self.slot = ShipSlot(self)
         self.hbox.addWidget(self.slot)
@@ -338,6 +393,7 @@ class ShipStatus(QWidget):
             return
         self.name.setText(ship.name)
         self.hp.set_hp(ship.nowhp, ship.maxhp)
+        self.fuelbull.set_val(ship)
         self.lv.setText(LV_FORMAT.format(lv=ship.lv))
         self.cond.set_cond(cond=ship.cond)
 

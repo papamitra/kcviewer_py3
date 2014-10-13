@@ -65,6 +65,28 @@ ShipHp[damage="serious"] QProgressBar::chunk{
   background-color: red;
 }
 
+FuelBulletMeter QProgressBar{
+  border: 1px solid gray;
+  border-radius: 2px;
+}
+
+FuelBulletMeter QProgressBar::chunk{
+  background-color: lightgreen;
+  width: 10px;
+}
+
+FuelBulletMeter QProgressBar::chunk[amount="normal"]{
+  background-color: yellow;
+}
+
+FuelBulletMeter QProgressBar::chunk[amount="half"]{
+  background-color: orange;
+}
+
+FuelBulletMeter QProgressBar::chunk[amount="empty"]{
+  background-color: red;
+}
+
 ShipCondition[condition="serious tired"] #condition_signal{
   background-color: red;
 }

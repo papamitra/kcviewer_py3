@@ -16,6 +16,8 @@ DATA_DB = 'data.db'
 CREATE_MST_SHIP_TABLE = u"""
 create table if not exists api_mst_ship(
   api_id integer primary key,
+  api_fuel_max integer,
+  api_bull_max integer,
   api_name text not null
 );
 """
@@ -68,6 +70,8 @@ select api_ship.api_id        as id,
        api_ship.api_lv        as lv,
        api_ship.api_fuel      as fuel,
        api_ship.api_bull      as bull,
+       api_mst_ship.api_bull_max as bull_max,
+       api_mst_ship.api_fuel_max as fuel_max,
        api_ship.api_cond      as cond,
        api_ship.api_nowhp     as nowhp,
        api_ship.api_maxhp     as maxhp,
