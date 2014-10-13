@@ -58,9 +58,16 @@ class DeckSelector(QWidget):
         self.deck_selected.emit(deck_no)
 
     def update(self):
+        while self.deck_layout.count():
+            item = self.deck_layout.itemAt(0)
+            self.deck_layout.removeItem(item)
+        for w in self.decks:
+            w.deleteLater()
+        self.decks = []
+
         port = model.Port(self.con)
         decks_no = len(port.decks())
-        for i in range(len(self.decks), decks_no):
+        for i in range(0, decks_no):
             button = DeckButton(i+1, self)
             self.decks.append(button)
             self.deck_layout.addWidget(button)
@@ -112,6 +119,7 @@ class PortStatus(QWidget):
     @pyqtSlot()
     def on_status_change(self):
         deck = self.port.deck(self.now_deck)
+        self.deckselector.update()
         for (i,ship) in enumerate(deck.ships()):
             ui = self.ship_views[i]
             ui.set_ship(ship)
