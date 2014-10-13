@@ -36,10 +36,12 @@ class DeckButton(QPushButton):
     def update(self):
         con = self.parent.con
         deck = model.Port(con).deck(self.deck_no)
-        self.setText('/' + deck.api_name)
+        if deck:
+            self.setText('/' + deck.api_name)
 
 class DeckSelector(QWidget):
     deck_selected = pyqtSignal(int)
+    MAX_FLEET_NUM = 4 # FIXME
 
     def __init__(self, con, parent):
         super(DeckSelector, self).__init__(parent)
@@ -47,6 +49,15 @@ class DeckSelector(QWidget):
         self.decks = []
         self.deck_layout = QHBoxLayout()
         self.setLayout(self.deck_layout)
+
+        for i in range(self.MAX_FLEET_NUM):
+            button = DeckButton(i+1,self)
+            self.decks.append(button)
+            self.deck_layout.addWidget(button)
+
+        self.deck_layout.addItem(QSpacerItem(40, 20,
+                                             QSizePolicy.Expanding,
+                                             QSizePolicy.Minimum))
 
         self.update()
         self.show()
@@ -58,23 +69,14 @@ class DeckSelector(QWidget):
         self.deck_selected.emit(deck_no)
 
     def update(self):
-        while self.deck_layout.count():
-            item = self.deck_layout.itemAt(0)
-            self.deck_layout.removeItem(item)
-        for w in self.decks:
-            w.deleteLater()
-        self.decks = []
-
         port = model.Port(self.con)
         decks_no = len(port.decks())
-        for i in range(0, decks_no):
-            button = DeckButton(i+1, self)
-            self.decks.append(button)
-            self.deck_layout.addWidget(button)
-            button.show()
-        self.deck_layout.addItem(QSpacerItem(40, 20,
-                                             QSizePolicy.Expanding,
-                                             QSizePolicy.Minimum))
+        for (i,deck) in enumerate(self.decks):
+            if i < decks_no:
+                deck.show()
+                deck.update()
+            else:
+                deck.hide()
 
     # for apply stylesheet
     def paintEvent(self, pe):
