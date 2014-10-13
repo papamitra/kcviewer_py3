@@ -91,6 +91,7 @@ class MainWindow(QMainWindow):
 
         status_box.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
+        """ TODO
         volume = QPushButton(self)
         volume.setCheckable(True)
         volume.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,
@@ -101,6 +102,7 @@ class MainWindow(QMainWindow):
         volume.setObjectName('volume')
         status_box.addWidget(volume)
         volume.clicked.connect(self.toggle_mute)
+        """
 
         take_ss = QPushButton(self)
         take_ss.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,
