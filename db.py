@@ -6,6 +6,7 @@ import utils
 CREATE_MESSAGE_TABLE = u"""
 create table if not exists msg(
   timestamp integer,
+  msg_type text,
   path text,
   data blob
 );

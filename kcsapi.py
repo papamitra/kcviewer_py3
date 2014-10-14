@@ -61,11 +61,11 @@ class KcsApi(object):
 
         return None
 
-    def debug_out(self, path, json):
+    def debug_out(self, msgtype, path, json):
         """ insert ApiMessage into debug DB """
 
-        sql = u"insert into msg values (datetime('now'), ? , ?)"
-        self.debug_con.execute(sql, (path, sqlite3.Binary(pickle.dumps(json))))
+        sql = u"insert into msg values (datetime('now'), ?, ? , ?)"
+        self.debug_con.execute(sql, (path, msgtype, sqlite3.Binary(pickle.dumps(json))))
 
     def insert_or_replace(self, table_name, data, conv={}):
         """ insert json data into table with data converting if needed """
@@ -90,7 +90,7 @@ class KcsApi(object):
             return
 
         if debug_out:
-            self.debug_out(path, json)
+            self.debug_out('response', path, json)
 
         if path == u'/kcsapi/api_start2':
             try:
@@ -129,6 +129,9 @@ class KcsApi(object):
         except Exception as e:
             print(e)
             return
+
+        if debug_out:
+            self.debug_out('request', path, request)
 
         if path == u'/kcsapi/api_req_hensei/change':
             try:
@@ -196,6 +199,6 @@ def parse_debug_db(dbname = None, where = None):
     con = utils.connect_debug_db(dbname)
     c = con.cursor()
     c.execute('select * from msg' + (where if where else ''))
-    debug_data = [(row[0], row[1], pickle.loads(str(row[2]))) for row in c]
+    debug_data = [(row[0], row[1], row[2], pickle.loads(str(row[3]))) for row in c]
     con.close()
     return debug_data
