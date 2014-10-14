@@ -5,10 +5,12 @@ import sqlite3
 import pickle
 import re
 import simplejson
-import utils
-import db
 import threading
 import Queue
+
+import model
+import utils
+import db
 
 def get_cols(con, table_name):
     cur = con.cursor()
@@ -120,6 +122,33 @@ class KcsApi(object):
             except Exception, e:
                 print("%s failed: %s" % (path, str(e)))
 
+    def req_dispatch(self, path, content, debug_out=True):
+        import urlparse
+        try:
+            request = urlparse.parse_qs(content)
+        except Exception as e:
+            print(e)
+            return
+
+        if path == u'/kcsapi/api_req_hensei/change':
+            try:
+                deck_id = int(request['api_id'][0])
+                ship_id = int(request['api_ship_id'][0])
+                if ship_id < -1:
+                    print('invalid shipid:{0}'.format(ship_id))
+                    return
+                pos_idx = int(request['api_ship_idx'][0]) # ship pos idx in fleet
+
+                port = model.Port(self.con)
+                deck = port.deck(deck_id)
+                ships = list(deck.api_ship)
+                ships[pos_idx] = ship_id
+                with self.con:
+                    self.con.execute(u'update api_deck_port set api_ship=? where api_id=?',
+                                     (ships, deck_id))
+            except Exception as e:
+                print(path, e)
+
 class KcsApiThread(KcsApi, threading.Thread):
     def __init__(self, on_dispatch = None):
         super(KcsApiThread, self).__init__()
@@ -133,7 +162,9 @@ class KcsApiThread(KcsApi, threading.Thread):
             self.input_queue.put(res_msg)
 
     def on_request(self, msg):
-        #print((msg.request.path, msg.request.content))
+        req_msg = self.parse_request(msg)
+        if req_msg:
+            self.input_queue.put(req_msg)
         pass
 
     def stop(self):
