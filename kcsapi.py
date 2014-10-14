@@ -137,7 +137,7 @@ class KcsApi(object):
             try:
                 deck_id = int(request['api_id'][0])
                 ship_id = int(request['api_ship_id'][0])
-                if ship_id < -1:
+                if ship_id < -2:
                     print('invalid shipid:{0}'.format(ship_id))
                     return
                 pos_idx = int(request['api_ship_idx'][0]) # ship pos idx in fleet
@@ -145,7 +145,16 @@ class KcsApi(object):
                 port = model.Port(self.con)
                 deck = port.deck(deck_id)
                 ships = list(deck.api_ship)
-                ships[pos_idx] = ship_id
+                if ship_id == -2:
+                    ships = ships[:1] + [-1] * (len(ships) -1)
+                else:
+                    if ship_id in ships:
+                        num = len(ships)
+                        exchange = ships[pos_idx]
+                        ships[ships.index(ship_id)] = exchange
+                        ships.remove(-1)
+                        ships += [-1] * (num - len(ships))
+                    ships[pos_idx] = ship_id
                 with self.con:
                     self.con.execute(u'update api_deck_port set api_ship=? where api_id=?',
                                      (ships, deck_id))
