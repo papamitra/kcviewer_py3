@@ -161,6 +161,31 @@ class KcsApi(object):
             except Exception as e:
                 print(path, e)
 
+        elif path == u'/kcsapi/api_req_kaisou/unsetslot_all':
+            try:
+                ship_id = int(request['api_id'][0])
+                ship = model.Ship(self.con, ship_id)
+                slot = [-1] * len(ship.slot)
+                with self.con:
+                    self.con.execute(u'update api_ship set api_slot=? where api_id=?',
+                                     (slot, ship_id))
+            except Exception as e:
+                print(path, e)
+
+        elif path == u'/kcsapi/api_req_kaisou/slotset':
+            try:
+                ship_id = int(request['api_id'][0])
+                item_id = int(request['api_item_id'][0])
+                slot_idx = int(request['api_slot_idx'][0])
+                ship = model.Ship(self.con, ship_id)
+                slot = ship.slot
+                slot[slot_idx] = item_id
+                with self.con:
+                    self.con.execute(u'update api_ship set api_slot=? where api_id=?',
+                                     (slot, ship_id))
+            except Exception as e:
+                print(path ,e)
+
 class KcsApiThread(KcsApi, threading.Thread):
     def __init__(self, on_dispatch = None):
         super(KcsApiThread, self).__init__()

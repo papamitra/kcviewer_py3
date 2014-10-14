@@ -18,5 +18,7 @@ class SignalEmitter(QObject):
             elif path == u'/kcsapi/api_get_member/slot_item':
                 self.slot_item.emit()
         elif msg_type == 'request':
-            if path == u'/kcsapi/api_req_hensei/change':
+            if path == u'/kcsapi/api_req_hensei/change' or \
+               path == u'/kcsapi/api_req_kaisou/slotset' or \
+               path == u'/kcsapi/api_req_kaisou/unsetslot_all':
                 self.api_port.emit()
