@@ -186,6 +186,20 @@ class KcsApi(object):
             except Exception as e:
                 print(path ,e)
 
+        elif path == u'/kcsapi/api_req_hokyu/charge':
+            try:
+                ships = [int(i) for i  in request['api_id_items'][0].split(',')]
+                kind = int(request['api_kind'][0])
+                with self.con:
+                    if kind==1 or kind==3:
+                        self.con.executemany(u'update api_ship set api_fuel=(select fuel_max from ship_view where id=?) where api_id=?',
+                                             [(sid, sid) for sid in ships])
+                    if kind==2 or kind==3:
+                        self.con.executemany(u'update api_ship set api_bull=(select bull_max from ship_view where id=?) where api_id=?',
+                                             [(sid, sid) for sid in ships])
+            except Exception as e:
+                print(path, e)
+
 class KcsApiThread(KcsApi, threading.Thread):
     def __init__(self, on_dispatch = None):
         super(KcsApiThread, self).__init__()

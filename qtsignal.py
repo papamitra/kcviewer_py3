@@ -20,5 +20,6 @@ class SignalEmitter(QObject):
         elif msg_type == 'request':
             if path == u'/kcsapi/api_req_hensei/change' or \
                path == u'/kcsapi/api_req_kaisou/slotset' or \
-               path == u'/kcsapi/api_req_kaisou/unsetslot_all':
+               path == u'/kcsapi/api_req_kaisou/unsetslot_all' or \
+               path == u'/kcsapi/api_req_hokyu/charge':
                 self.api_port.emit()
