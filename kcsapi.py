@@ -152,7 +152,7 @@ class KcsApi(object):
                         num = len(ships)
                         exchange = ships[pos_idx]
                         ships[ships.index(ship_id)] = exchange
-                        ships.remove(-1)
+                        if -1 in ships: ships.remove(-1)
                         ships += [-1] * (num - len(ships))
                     ships[pos_idx] = ship_id
                 with self.con:
