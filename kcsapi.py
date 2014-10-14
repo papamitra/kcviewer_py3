@@ -38,10 +38,10 @@ class KcsApi(object):
             res = msg.response
             req = msg.request
             if re.search("application/json", res.headers["Content-Type"][0]):
-                return (req.path, res.content)
+                return ('response', req.path, res.content)
             elif re.search("text/plain", res.headers["Content-Type"][0]):
                 if 0 == res.content.index("svdata="):
-                    return (req.path, res.content[len("svdata="):])
+                    return ('response', req.path, res.content[len("svdata="):])
         except Exception, e:
                 print(e)
 
@@ -52,11 +52,8 @@ class KcsApi(object):
 
         try:
             req = msg.request
-            if re.search("application/json", req.headers["Content-Type"][0]):
-                return (req.path, req.content)
-            elif re.search("text/plain", req.headers["Content-Type"][0]):
-                if 0 == res.content.index("svdata="):
-                    return (req.path, req.content[len("svdata="):])
+            if re.search('application/x-www-form-urlencoded', req.headers['Content-Type'][0]):
+                return ('request', req.path, req.content)
         except Exception, e:
                 print(e)
 
@@ -81,13 +78,11 @@ class KcsApi(object):
         self.con.executemany(sql,
                              [[d[c] if not c in conv else conv[c](d) for c in cols] for d in data])
 
-    def dispatch(self, msg, debug_out=True):
+    def res_dispatch(self, path, content, debug_out=True):
         """ dispatch api message """
 
-        (path, data) = msg
-
         try:
-            json = simplejson.loads(data)
+            json = simplejson.loads(content)
         except Exception as e:
             print(e)
             return
@@ -133,9 +128,9 @@ class KcsApiThread(KcsApi, threading.Thread):
         self.on_dispatch = on_dispatch
 
     def on_response(self, msg):
-        api_msg = self.parse_response(msg)
-        if api_msg:
-            self.input_queue.put(api_msg)
+        res_msg = self.parse_response(msg)
+        if res_msg:
+            self.input_queue.put(res_msg)
 
     def on_request(self, msg):
         #print((msg.request.path, msg.request.content))
@@ -153,10 +148,15 @@ class KcsApiThread(KcsApi, threading.Thread):
             d = self.input_queue.get()
             if d is None:
                 break
-            self.dispatch(d)
+            (msg_type, path, content) = d
+            if msg_type == 'request':
+                self.req_dispatch(path, content)
+            elif msg_type == 'response':
+                self.res_dispatch(path, content)
+
             if self.on_dispatch:
-                (path, _) = d
-                self.on_dispatch(path)
+                (msg_type, path, _) = d
+                self.on_dispatch(msg_type, path)
 
         print('ApiThread ...done')
 
