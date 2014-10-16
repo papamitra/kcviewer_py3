@@ -12,21 +12,37 @@ import utils
 import model
 import slotitem
 
-class DeckButton(QPushButton):
-
+class DeckButton(QWidget):
     def __init__(self, deck_no, parent):
         super(DeckButton, self).__init__(parent)
         self.parent = parent
         self.deck_no = deck_no
-        self.setCheckable(True)
-        if deck_no == 1:
-            self.setChecked(True)
-        else:
-            self.setChecked(False)
 
-    def nextCheckState(self):
-        if not self.isChecked():
-            self.setChecked(True)
+        self.hbox = QHBoxLayout()
+        self.hbox.setSpacing(0)
+        self.hbox.setContentsMargins(0,0,0,10)
+        self.setLayout(self.hbox)
+
+        self.supply = QWidget(self)
+        self.supply.setObjectName('supply')
+        self.supply.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,
+                                              QSizePolicy.Fixed))
+        self.supply.setMinimumSize(QSize(10,10))
+        self.supply.setMaximumSize(QSize(10,10))
+        self.hbox.addWidget(self.supply)
+
+        self.button = QPushButton(self)
+        self.button.setCheckable(True)
+        if deck_no == 1:
+            self.button.setChecked(True)
+        else:
+            self.button.setChecked(False)
+        self.hbox.addWidget(self.button)
+
+        self.button.toggled.connect(self.toggled)
+
+    def toggled(self, checked):
+        if checked:
             self.parent.on_deck_selected(self.deck_no)
             self.update()
 
@@ -37,7 +53,7 @@ class DeckButton(QPushButton):
         con = self.parent.con
         deck = model.Port(con).deck(self.deck_no)
         if deck:
-            self.setText('/' + deck.api_name)
+            self.button.setText(deck.api_name)
 
 class DeckSelector(QWidget):
     deck_selected = pyqtSignal(int)
@@ -65,7 +81,7 @@ class DeckSelector(QWidget):
     def on_deck_selected(self, deck_no):
         for deck in self.decks:
             if deck.deck_no != deck_no:
-                deck.setChecked(False)
+                deck.button.setChecked(False)
         self.deck_selected.emit(deck_no)
 
     def update(self):

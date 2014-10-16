@@ -20,14 +20,18 @@ ShipStatus{
   border-bottom: 1px solid lightgray;
 }
 
-DeckButton {
+DeckButton QPushButton {
   border: 0px;
   text-align: left;
   outline: none;
 }
 
-DeckButton:on {
+DeckButton QPushButton:on {
   background-color: lightgray;
+}
+
+DeckButton #supply {
+  background-color: yellow;
 }
 
 DeckSelector {
