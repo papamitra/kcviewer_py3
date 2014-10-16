@@ -6,27 +6,32 @@ db.initialize()
 
 class TableMapper(object):
     """ metaclass to create readonly ORM class"""
-    def __init__(self, table_name):
+    def __init__(self, table_name, sql = None):
         self.table_name = table_name
+        self.sql = sql
 
     def __call__(self, classname, base_types, dict):
+        def init(s, con, ident):
+            cur = con.cursor()
+            cur.execute(self.sql, (ident,))
+            row = cur.fetchone()
+            s._row = row
+
         def get_col(col):
-            return lambda self: self.row[col]
+            return lambda self: self._row[col]
 
         con = utils.connect_db()
         for col in utils.tablecols(con, self.table_name):
             if col not in dict:
                 dict[col] = property(get_col(col))
 
+        if self.sql:
+            dict['__init__'] = init
+
         return type(classname, base_types, dict)
 
 class Ship(object):
-    __metaclass__ = TableMapper('ship_view')
-    def __init__(self, con, ship_id):
-        cur = con.cursor()
-        cur.execute(u'select * from ship_view where id=?', (ship_id,))
-        row = cur.fetchone()
-        self.row = row # for metaclass
+    __metaclass__ = TableMapper('ship_view', u'select * from ship_view where id=?')
 
     def cond_state(self):
         if self.cond <= 20:
@@ -66,19 +71,14 @@ class Deck(object):
     __metaclass__ = TableMapper('api_deck_port')
     def __init__(self, con, row):
         self.con = con
-        self.row = row # for metalass
+        self._row = row # for metalass
 
     def ships(self):
         return [None if ship_id == -1 else
                 Ship(self.con, ship_id) for ship_id in self.api_ship]
 
 class SlotItem(object):
-    __metaclass__ = TableMapper('slotitem_view')
-    def __init__(self, con, slotitem_id):
-        cur = con.cursor()
-        cur.execute(u'select * from slotitem_view where id=?', (slotitem_id,))
-        row = cur.fetchone()
-        self.row = row # for metaclass
+    __metaclass__ = TableMapper('slotitem_view', u'select * from slotitem_view where id=?')
 
 class Port(object):
     def __init__(self, con):
