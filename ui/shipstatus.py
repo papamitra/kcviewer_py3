@@ -239,25 +239,17 @@ class FuelBulletMeter(QWidget):
         self.bullet_bar.setMinimumSize(QSize(80, 10))
         self.bullet_bar.setMaximumSize(QSize(80, 10))
 
-    def set_bar(self, widget, val, val_max):
-        widget.setValue(val*100/val_max)
+    def _set_bar(self, widget, rate, state):
+        widget.setValue(int(rate*100))
         widget.setFormat('')
-        rate = float(val) / float(val_max)
-        if rate <= 0.3:
-            widget.setProperty('amount', 'empty')
-        elif rate <= 0.7:
-            widget.setProperty('amount', 'half')
-        elif rate < 1.0:
-            widget.setProperty('amount', 'normal')
-        else:
-            widget.setProperty('amount', 'full')
+        widget.setProperty('amount', state)
 
         self.style().unpolish(widget)
         self.style().polish(widget)
 
     def set_val(self, ship):
-        self.set_bar(self.fuel_bar, ship.fuel, ship.fuel_max)
-        self.set_bar(self.bullet_bar, ship.bull, ship.bull_max)
+        self._set_bar(self.fuel_bar, ship.fuel_rate(), ship.fuel_state())
+        self._set_bar(self.bullet_bar, ship.bull_rate(), ship.bull_state())
 
     # for apply stylesheet
     def paintEvent(self, pe):

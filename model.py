@@ -39,6 +39,29 @@ class Ship(object):
             return 'normal'
         return 'good'
 
+    @staticmethod
+    def _supply_state(rate):
+        if rate <= 0.3:
+            return 'empty'
+        elif rate <= 0.7:
+            return 'half'
+        elif rate < 1.0:
+            return 'normal'
+        else:
+            return 'full'
+
+    def fuel_state(self):
+        return self._supply_state(self.fuel_rate())
+
+    def fuel_rate(self):
+        return float(self.fuel) / float(self.fuel_max)
+
+    def bull_state(self):
+        return self._supply_state(self.bull_rate())
+
+    def bull_rate(self):
+        return float(self.bull) / float(self.bull_max)
+
 class Deck(object):
     __metaclass__ = TableMapper('api_deck_port')
     def __init__(self, con, row):
