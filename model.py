@@ -28,6 +28,17 @@ class Ship(object):
         row = cur.fetchone()
         self.row = row # for metaclass
 
+    def cond_state(self):
+        if self.cond <= 20:
+            return 'serious tired'
+        elif self.cond <= 29:
+            return 'middle tired'
+        elif self.cond <= 39:
+            return 'slight tired'
+        elif self.cond <= 49:
+            return 'normal'
+        return 'good'
+
 class Deck(object):
     __metaclass__ = TableMapper('api_deck_port')
     def __init__(self, con, row):

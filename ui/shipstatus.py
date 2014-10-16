@@ -289,18 +289,9 @@ class ShipCondition(QWidget):
 
         self.setProperty('condition', 'normal')
 
-    def set_cond(self, cond):
-        self.cond.setText(COND_FORMAT.format(str(cond)))
-        if cond <= 20:
-            self.setProperty('condition', 'serious tired')
-        elif cond <= 29:
-            self.setProperty('condition', 'middle tired')
-        elif cond <= 39:
-            self.setProperty('condition', 'slight tired')
-        elif cond <= 49:
-            self.setProperty('condition', 'normal')
-        else:
-            self.setProperty('condition', 'good')
+    def set_cond(self, ship):
+        self.cond.setText(COND_FORMAT.format(str(ship.cond)))
+        self.setProperty('condition', ship.cond_state())
 
         self.style().unpolish(self.cond_signal)
         self.style().polish(self.cond_signal)
@@ -421,7 +412,7 @@ class ShipStatus(QWidget):
         self.hp.set_hp(ship.nowhp, ship.maxhp)
         self.fuelbull.set_val(ship)
         self.lv.setText(LV_FORMAT.format(lv=ship.lv))
-        self.cond.set_cond(cond=ship.cond)
+        self.cond.set_cond(ship)
 
         item_types = []
         for slot_id in ship.slot:
