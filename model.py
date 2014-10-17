@@ -28,6 +28,7 @@ class TableMapper(object):
                 dict[col] = property(get_col(col))
 
         dict['__init__'] = init
+        dict['is_null'] = lambda s: s._row is None
 
         return type(classname, base_types, dict)
 

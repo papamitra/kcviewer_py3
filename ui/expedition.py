@@ -37,7 +37,7 @@ class ExpeditionLabel(QLabel):
     @pyqtSlot()
     def update(self):
         prefix = u'/' + str(self.deck_no)
-        if self.deck is None:
+        if self.deck.is_null():
             self.setText(prefix + u'- 未開放')
         elif self.deck.api_mission[2] == 0:
             self.setText(prefix + u'- ')

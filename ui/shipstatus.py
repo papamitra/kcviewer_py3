@@ -52,7 +52,7 @@ class DeckButton(QWidget):
     def update(self):
         con = self.parent.con
         deck = model.Port(con).deck(self.deck_no)
-        if deck:
+        if not deck.is_null():
             self.button.setText(deck.api_name)
             self.state.setProperty('state', deck.state())
 
