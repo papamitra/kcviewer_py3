@@ -30,8 +30,16 @@ DeckButton QPushButton:on {
   background-color: lightgray;
 }
 
-DeckButton #supply {
-  background-color: yellow;
+DeckButton #state {
+  background-color: lightgreen;
+}
+
+DeckButton #state[state='expedition'] {
+  background-color: blue;
+}
+
+DeckButton #state[state='not ready'] {
+  background-color: orange;
 }
 
 DeckSelector {

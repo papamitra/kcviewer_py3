@@ -75,6 +75,18 @@ class Deck(object):
         return [None if ship_id == -1 else
                 Ship(self._con, ship_id) for ship_id in self.api_ship]
 
+    def state(self):
+        if self.api_mission[0] != 0:
+            return 'expedition'
+
+        for ship in self.ships():
+            if ship is None: continue
+            if ship.fuel_rate() < 1.0 or \
+               ship.bull_rate() < 1.0:
+                return 'not ready'
+
+        return 'ready'
+
 class SlotItem(object):
     __metaclass__ = TableMapper('slotitem_view', u'select * from slotitem_view where id=?')
 

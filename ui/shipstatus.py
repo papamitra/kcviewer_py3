@@ -23,13 +23,13 @@ class DeckButton(QWidget):
         self.hbox.setContentsMargins(0,0,0,10)
         self.setLayout(self.hbox)
 
-        self.supply = QWidget(self)
-        self.supply.setObjectName('supply')
-        self.supply.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,
+        self.state = QWidget(self)
+        self.state.setObjectName('state')
+        self.state.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,
                                               QSizePolicy.Fixed))
-        self.supply.setMinimumSize(QSize(10,10))
-        self.supply.setMaximumSize(QSize(10,10))
-        self.hbox.addWidget(self.supply)
+        self.state.setMinimumSize(QSize(10,10))
+        self.state.setMaximumSize(QSize(10,10))
+        self.hbox.addWidget(self.state)
 
         self.button = QPushButton(self)
         self.button.setCheckable(True)
@@ -54,6 +54,7 @@ class DeckButton(QWidget):
         deck = model.Port(con).deck(self.deck_no)
         if deck:
             self.button.setText(deck.api_name)
+            self.state.setProperty('state', deck.state())
 
 class DeckSelector(QWidget):
     deck_selected = pyqtSignal(int)
