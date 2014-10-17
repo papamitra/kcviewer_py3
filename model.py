@@ -77,7 +77,7 @@ class Deck(object):
                 Ship(self._con, ship_id) for ship_id in self.api_ship]
 
     def state(self):
-        if self.api_mission[0] != 0:
+        if self.api_mission[1] != 0:
             return 'expedition'
 
         for ship in self.ships():
