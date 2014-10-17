@@ -6,15 +6,17 @@ db.initialize()
 
 class TableMapper(object):
     """ metaclass to create readonly ORM class"""
-    def __init__(self, table_name, sql = None):
+    def __init__(self, table_name, sql):
         self.table_name = table_name
         self.sql = sql
 
     def __call__(self, classname, base_types, dict):
-        def init(s, con, ident):
-            cur = con.cursor()
-            cur.execute(self.sql, (ident,))
-            row = cur.fetchone()
+        def init(s, con, id=None, row=None):
+            s._con = con
+            if row is None:
+                cur = s._con.cursor()
+                cur.execute(self.sql, (id,))
+                row = cur.fetchone()
             s._row = row
 
         def get_col(col):
@@ -25,8 +27,7 @@ class TableMapper(object):
             if col not in dict:
                 dict[col] = property(get_col(col))
 
-        if self.sql:
-            dict['__init__'] = init
+        dict['__init__'] = init
 
         return type(classname, base_types, dict)
 
@@ -68,14 +69,11 @@ class Ship(object):
         return float(self.bull) / float(self.bull_max)
 
 class Deck(object):
-    __metaclass__ = TableMapper('api_deck_port')
-    def __init__(self, con, row):
-        self.con = con
-        self._row = row # for metalass
+    __metaclass__ = TableMapper('api_deck_port', u'select * from api_deck_port where api_id = ?')
 
     def ships(self):
         return [None if ship_id == -1 else
-                Ship(self.con, ship_id) for ship_id in self.api_ship]
+                Ship(self._con, ship_id) for ship_id in self.api_ship]
 
 class SlotItem(object):
     __metaclass__ = TableMapper('slotitem_view', u'select * from slotitem_view where id=?')
@@ -87,12 +85,7 @@ class Port(object):
     def decks(self):
         cur = self.con.cursor()
         cur.execute(u'select * from api_deck_port')
-        return [Deck(self.con, row) for row in cur]
+        return [Deck(self.con, row=row) for row in cur]
 
     def deck(self, deck_id):
-        cur = self.con.cursor()
-        cur.execute(u'select * from api_deck_port where api_id = ?', (deck_id, ))
-        row = cur.fetchone()
-        if row is None:
-            return None
-        return Deck(self.con, row)
+        return Deck(self.con, deck_id)
