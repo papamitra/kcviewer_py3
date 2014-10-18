@@ -55,6 +55,8 @@ class DeckButton(QWidget):
         if not deck.is_null():
             self.button.setText(deck.api_name)
             self.state.setProperty('state', deck.state())
+        self.style().unpolish(self.state)
+        self.style().polish(self.state)
 
 class DeckSelector(QWidget):
     deck_selected = pyqtSignal(int)
