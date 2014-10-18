@@ -39,6 +39,7 @@ class KcsApi(object):
         try:
             res = msg.response
             req = msg.request
+            print('res: ', req.path)
             if re.search("application/json", res.headers["Content-Type"][0]):
                 return ('response', req.path, res.content)
             elif re.search("text/plain", res.headers["Content-Type"][0]):
@@ -54,6 +55,7 @@ class KcsApi(object):
 
         try:
             req = msg.request
+            print('req: ', req.path)
             if re.search('application/x-www-form-urlencoded', req.headers['Content-Type'][0]):
                 return ('request', req.path, req.content)
         except Exception, e:
