@@ -149,6 +149,8 @@ class KcsApi(object):
                 ships = list(deck.api_ship)
                 if ship_id == -2:
                     ships = ships[:1] + [-1] * (len(ships) -1)
+                elif ship_id == -1:
+                    ships[pos_idx] = ship_id
                 else:
                     if ship_id in ships:
                         num = len(ships)
