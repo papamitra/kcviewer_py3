@@ -94,6 +94,7 @@ class ApiReqHensei(object):
         if ship_id == -2:
             ships = ships[:1] + [-1] * (len(ships) -1)
         elif ship_id == -1:
+            num = len(ships)
             ships[pos_idx] = ship_id
             if -1 in ships: ships.remove(-1)
             ships += [-1] * (num - len(ships))
