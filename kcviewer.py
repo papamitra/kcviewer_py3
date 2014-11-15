@@ -13,32 +13,34 @@ from PyQt5.QtGui import QDesktopServices
 
 import simplejson
 import os
+import urlparse
 from ui.mainwindow import MainWindow
 
-class ProxyAccessManager(QNetworkAccessManager):
-    def __init__(self, proxy_port, parent):
-        super(ProxyAccessManager, self).__init__(parent)
+class NetworkAccessManager(QNetworkAccessManager):
+    def __init__(self, parent, on_request, on_response):
+        super(NetworkAccessManager, self).__init__(parent)
 
-        ssl_config = QSslConfiguration.defaultConfiguration()
-        ssl_config.setProtocol(QSsl.SecureProtocols)
+        self.on_request = on_request
+        self.on_response = on_response
 
-        certs = ssl_config.caCertificates()
+        self.finished.connect(self.on_finished)
 
-        cert_file = QFile("./cert/mitmproxy-ca-cert.pem")
-        cert_file.open(QIODevice.ReadOnly)
-        cert = QSslCertificate(cert_file)
-        certs.append(cert)
+        proxy_url = os.environ.get('http_proxy')
+        if proxy_url:
+            url = urlparse.urlparse(proxy_url)
+            proxy = QNetworkProxy()
+            proxy.setType(QNetworkProxy.HttpProxy)
+            proxy.setHostName(url.hostname)
+            proxy.setPort(url.port)
+            self.setProxy(proxy)
 
-        ssl_config.setCaCertificates(certs)
-        QSslConfiguration.setDefaultConfiguration(ssl_config)
+    def createRequest(self, op, req, outgoing_data = None):
+        print("createRequest", req.url(), outgoing_data)
+        return super(NetworkAccessManager, self).createRequest(op, req, outgoing_data)
 
-        print("NetworkAccessManager")
-        proxy = QNetworkProxy()
-        proxy.setType(QNetworkProxy.HttpProxy);
-        proxy.setHostName("localhost");
-        proxy.setPort(proxy_port);
-        #QNetworkProxy.setApplicationProxy(proxy);
-        self.setProxy(proxy)
+    @pyqtSlot(object)
+    def on_finished(self, reply):
+        print(reply)
 
 class CookieJar(QNetworkCookieJar):
     def __init__(self):
@@ -68,10 +70,10 @@ class CookieJar(QNetworkCookieJar):
         self.setAllCookies(cookies)
 
 class KCView(MainWindow):
-    def __init__(self, proxy_port, url):
+    def __init__(self, url, on_request, on_response):
         super(KCView, self).__init__()
 
-        am = ProxyAccessManager(proxy_port, self)
+        am = NetworkAccessManager(self, on_request, on_response)
         self.web_view.page().setNetworkAccessManager(am)
 
         disk_cache = QNetworkDiskCache()

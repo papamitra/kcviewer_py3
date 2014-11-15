@@ -106,34 +106,31 @@ class KcsApi(object):
     def __init__(self):
         super(KcsApi, self).__init__()
 
-    def parse_response(self, msg):
+    def parse_response(self, path, content_type, content):
         """ parse http raw response"""
 
         try:
-            res = msg.response
-            req = msg.request
-            print('res: ', req.path)
-            if re.search("application/json", res.headers.get('Content-Type',[''])[0]):
-                command = KcsCommand.command_table.get((KcsCommand.RESPONSE, req.path), ApiResUnknown)
-                return command(req.path, res.content)
-            elif re.search("text/plain", res.headers.get('Content-Type',[''])[0]):
-                if 0 == res.content.index("svdata="):
-                    command = KcsCommand.command_table.get((KcsCommand.RESPONSE, req.path), ApiResUnknown)
-                    return command(req.path, res.content[len("svdata="):])
+            print('res: ', path)
+            if re.search("application/json", content_type):
+                command = KcsCommand.command_table.get((KcsCommand.RESPONSE, path), ApiResUnknown)
+                return command(path, content)
+            elif re.search("text/plain", content_type):
+                if 0 == content.index("svdata="):
+                    command = KcsCommand.command_table.get((KcsCommand.RESPONSE, path), ApiResUnknown)
+                    return command(path, content[len("svdata="):])
         except Exception, e:
                 print(e)
 
         return None
 
-    def parse_request(self, msg):
+    def parse_request(self, path, content_type, content):
         """ parse http raw request"""
 
         try:
-            req = msg.request
-            print('req: ', req.path)
-            if re.search('application/x-www-form-urlencoded', req.headers.get('Content-Type',[''])[0]):
-                command = KcsCommand.command_table.get((KcsCommand.REQUEST, req.path), ApiReqUnknown)
-                return command(req.path, req.content)
+            print('req: ', path)
+            if re.search('application/x-www-form-urlencoded', content_type):
+                command = KcsCommand.command_table.get((KcsCommand.REQUEST, path), ApiReqUnknown)
+                return command(path, content)
         except Exception, e:
                 print(e)
 
@@ -146,13 +143,13 @@ class KcsApiThread(KcsApi, threading.Thread):
         self.input_queue = Queue.Queue()
         self.on_dispatch = on_dispatch
 
-    def on_response(self, msg):
-        res_cmd = self.parse_response(msg)
+    def on_response(self, path, content_type, content):
+        res_cmd = self.parse_response(path, content_type, content)
         if res_cmd:
             self.input_queue.put(res_cmd)
 
-    def on_request(self, msg):
-        req_cmd = self.parse_request(msg)
+    def on_request(self, path, content_type, content):
+        req_cmd = self.parse_request(path, content_Type, content)
         if req_cmd:
             self.input_queue.put(req_cmd)
         pass
