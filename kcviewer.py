@@ -13,7 +13,7 @@ from PyQt5.QtGui import QDesktopServices
 
 import simplejson
 import os
-import urlparse
+import urllib.parse
 import re
 from kcsapi import KcsCommand
 from ui.mainwindow import MainWindow
@@ -28,7 +28,7 @@ class NetworkAccessManager(QNetworkAccessManager):
 
         proxy_url = os.environ.get('http_proxy')
         if proxy_url:
-            url = urlparse.urlparse(proxy_url)
+            url = urllib.parse.urlparse(proxy_url)
             proxy = QNetworkProxy()
             proxy.setType(QNetworkProxy.HttpProxy)
             proxy.setHostName(url.hostname)
@@ -41,11 +41,11 @@ class NetworkAccessManager(QNetworkAccessManager):
             print(path)
 
             content_type =  req.header(QNetworkRequest.ContentTypeHeader)
-            if content_type == u'application/x-www-form-urlencoded':
+            if content_type == 'application/x-www-form-urlencoded':
                 content = '' if outgoing_data is None else str(outgoing_data.peek(10*1000*1000))
                 command = command = KcsCommand.command_table.get((KcsCommand.REQUEST, path), ApiReqUnknown)
                 self.apithread.input_queue.push(command(path, content))
-        except Exception, e:
+        except Exception as e:
             print(e)
 
         return super(NetworkAccessManager, self).createRequest(op, req, outgoing_data)
@@ -54,23 +54,23 @@ class NetworkAccessManager(QNetworkAccessManager):
     def on_finished(self, reply):
         try:
             path = reply.request().url().path()
-            print('res path: ', path)
+            print(('res path: ', path))
 
             content_type = reply.header(QNetworkRequest.ContentTypeHeader)
-            print('res content_type: ', content_type)
+            print(('res content_type: ', content_type))
 
-            if content_type == u'application/json':
+            if content_type == 'application/json':
                 content = '' if outgoing_data is None else str(outgoing_data.peek(10*1000*1000))
                 command = KcsCommand.command_table.get((KcsCommand.RESPONSE, path), ApiResUnknown)
                 self.apithread.input_queue.put(command(path, content))
 
-            elif content_type == u'text/plain':
+            elif content_type == 'text/plain':
                 content = '' if outgoing_data is None else str(outgoing_data.peek(10*1000*1000))
                 if 0 == content.index("svdata="):
                     command = KcsCommand.command_table.get((KcsCommand.RESPONSE, path), ApiResUnknown)
                     self.apithread.input_queue.put(command(path, content[len("svdata="):]))
 
-        except Exception, e:
+        except Exception as e:
                 print(e)
 
 class CookieJar(QNetworkCookieJar):

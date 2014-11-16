@@ -28,24 +28,24 @@ class ExpeditionLabel(QLabel):
 
     @staticmethod
     def formattime(sec):
-        h = sec/(60**2)
-        m = (sec % (60**2)) / 60
-        s = sec % 60
+        h = int(sec/(60**2))
+        m = int((sec % (60**2)) / 60)
+        s = int(sec % 60)
 
         return '{:02d}:{:02d}:{:02d}'.format(h,m,s)
 
     @pyqtSlot()
     def update(self):
-        prefix = u'/' + str(self.deck_no)
+        prefix = '/' + str(self.deck_no)
         if self.deck.is_null():
-            self.setText(prefix + u'- 未開放')
+            self.setText(prefix + '- 未開放')
         elif self.deck.api_mission[2] == 0:
-            self.setText(prefix + u'- ')
+            self.setText(prefix + '- ')
         else:
             sec = int(self.deck.api_mission[2]/1000 - int(time.time()))
             if sec < 0:
                 sec = 0
-            self.setText(prefix + u'- ' + self.formattime(sec))
+            self.setText(prefix + '- ' + self.formattime(sec))
 
 class ExpeditionBox(QWidget):
     def __init__(self, parent):
@@ -57,7 +57,7 @@ class ExpeditionBox(QWidget):
         self.vbox = QVBoxLayout()
         self.setLayout(self.vbox)
         self.label = QLabel()
-        self.label.setText(u'遠征')
+        self.label.setText('遠征')
         self.vbox.addWidget(self.label)
 
         # horizontal line

@@ -6,7 +6,6 @@ from PyQt5.QtWidgets import QApplication
 
 import threading
 
-import kcproxy
 import kcviewer
 from kcsapi import KcsApiThread
 import qtsignal

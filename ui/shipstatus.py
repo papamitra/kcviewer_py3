@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt5.QtGui import QPixmap, QIcon, QColor, QPainter
 import utils
 import model
-import slotitem
+from . import slotitem
 
 class DeckButton(QWidget):
     def __init__(self, deck_no, parent):
@@ -162,12 +162,12 @@ class PortStatus(QWidget):
         s = self.style()
         s.drawPrimitive(QStyle.PE_Widget, opt, p, self)
 
-LV_FORMAT = u'<html><head/><body><p>Lv <span style=" font-size:16pt;">{lv}</span></p></body></html>'
+LV_FORMAT = '<html><head/><body><p>Lv <span style=" font-size:16pt;">{lv}</span></p></body></html>'
 
 #HP_FORMAT = u'<html><head/><body><p><span style=" font-size:16pt;">HP: </span><span style=" font-size:16pt; font-weight:600;">{0}</span><span style=" font-size:16pt;"> /{1}</span></p></body></html>'
-HP_FORMAT = u'<html><head/><body><p>HP: <span style="font-weight:600;">{0}</span> /{1}</p></body></html>'
+HP_FORMAT = '<html><head/><body><p>HP: <span style="font-weight:600;">{0}</span> /{1}</p></body></html>'
 
-COND_FORMAT=u'<html><head/><body><p>{0}<br/><span style="font-size:8pt;">condition</span></p></body></html>'
+COND_FORMAT='<html><head/><body><p>{0}<br/><span style="font-size:8pt;">condition</span></p></body></html>'
 
 class ShipHp(QWidget):
     def __init__(self, parent):
@@ -346,7 +346,7 @@ class ShipSlot(QWidget):
 
     def set_slot(self, types):
         # remove all icon
-        for i in reversed(range(self.box.count())):
+        for i in reversed(list(range(self.box.count()))):
             self.box.itemAt(i).widget().setParent(None)
 
         for t in types:

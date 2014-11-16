@@ -3,7 +3,7 @@
 import sqlite3
 import utils
 
-CREATE_MESSAGE_TABLE = u"""
+CREATE_MESSAGE_TABLE = """
 create table if not exists msg(
   timestamp integer,
   msg_type text,
@@ -14,7 +14,7 @@ create table if not exists msg(
 
 DATA_DB = 'data.db'
 
-CREATE_MST_SHIP_TABLE = u"""
+CREATE_MST_SHIP_TABLE = """
 create table if not exists api_mst_ship(
   api_id integer primary key,
   api_fuel_max integer,
@@ -23,7 +23,7 @@ create table if not exists api_mst_ship(
 );
 """
 
-CREATE_SHIP_TABLE = u"""
+CREATE_SHIP_TABLE = """
 create table if not exists api_ship(
   api_id      integer primary key,
   api_ship_id integer,
@@ -38,7 +38,7 @@ create table if not exists api_ship(
 );
 """
 
-CREATE_DECK_PORT_TABLE = u"""
+CREATE_DECK_PORT_TABLE = """
 create table if not exists api_deck_port(
   api_id      integer primary key,
   api_mission IntList,
@@ -47,7 +47,7 @@ create table if not exists api_deck_port(
 );
 """
 
-CREATE_MST_SLOTITEM_TABLE = u"""
+CREATE_MST_SLOTITEM_TABLE = """
 create table if not exists api_mst_slotitem(
   api_id     integer primary key,
   api_name   text,
@@ -55,7 +55,7 @@ create table if not exists api_mst_slotitem(
 );
 """
 
-CREATE_SLOTITEM_TABLE = u"""
+CREATE_SLOTITEM_TABLE = """
 create table if not exists api_slotitem(
   api_id          integer primary key,
   api_locked      integer,
@@ -64,7 +64,7 @@ create table if not exists api_slotitem(
 );
 """
 
-CREATE_SHIP_VIEW = u"""
+CREATE_SHIP_VIEW = """
 create view if not exists ship_view as
 select api_ship.api_id        as id,
        api_mst_ship.api_name  as name,
@@ -80,7 +80,7 @@ select api_ship.api_id        as id,
 from api_ship left join api_mst_ship on api_ship.api_ship_id == api_mst_ship.api_id;
 """
 
-CREATE_SLOTITEM_VIEW = u"""
+CREATE_SLOTITEM_VIEW = """
 create view if not exists slotitem_view as
 select api_slotitem.api_id        as id,
        api_mst_slotitem.api_name  as name,

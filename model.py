@@ -32,9 +32,7 @@ class TableMapper(object):
 
         return type(classname, base_types, dict)
 
-class Ship(object):
-    __metaclass__ = TableMapper('ship_view', u'select * from ship_view where id=?')
-
+class Ship(object, metaclass=TableMapper('ship_view', 'select * from ship_view where id=?')):
     def cond_state(self):
         if self.cond <= 20:
             return 'serious tired'
@@ -69,9 +67,7 @@ class Ship(object):
     def bull_rate(self):
         return float(self.bull) / float(self.bull_max)
 
-class Deck(object):
-    __metaclass__ = TableMapper('api_deck_port', u'select * from api_deck_port where api_id = ?')
-
+class Deck(object, metaclass=TableMapper('api_deck_port', 'select * from api_deck_port where api_id = ?')):
     def ships(self):
         return [None if ship_id == -1 else
                 Ship(self._con, ship_id) for ship_id in self.api_ship]
@@ -88,8 +84,8 @@ class Deck(object):
 
         return 'ready'
 
-class SlotItem(object):
-    __metaclass__ = TableMapper('slotitem_view', u'select * from slotitem_view where id=?')
+class SlotItem(object, metaclass=TableMapper('slotitem_view', 'select * from slotitem_view where id=?')):
+    pass
 
 class Port(object):
     def __init__(self, con):
@@ -97,7 +93,7 @@ class Port(object):
 
     def decks(self):
         cur = self.con.cursor()
-        cur.execute(u'select * from api_deck_port')
+        cur.execute('select * from api_deck_port')
         return [Deck(self.con, row=row) for row in cur]
 
     def deck(self, deck_id):

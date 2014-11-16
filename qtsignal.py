@@ -10,16 +10,16 @@ class SignalEmitter(QObject):
 
     def dispatch(self, msg_type, path):
         if msg_type == 'response':
-            if path == u'/kcsapi/api_start2':
+            if path == '/kcsapi/api_start2':
                 self.api_start2.emit()
-            elif path == u'/kcsapi/api_port/port' or \
-                 path == u'/kcsapi/api_get_member/ship2':
+            elif path == '/kcsapi/api_port/port' or \
+                 path == '/kcsapi/api_get_member/ship2':
                 self.api_port.emit()
-            elif path == u'/kcsapi/api_get_member/slot_item':
+            elif path == '/kcsapi/api_get_member/slot_item':
                 self.slot_item.emit()
         elif msg_type == 'request':
-            if path == u'/kcsapi/api_req_hensei/change' or \
-               path == u'/kcsapi/api_req_kaisou/slotset' or \
-               path == u'/kcsapi/api_req_kaisou/unsetslot_all' or \
-               path == u'/kcsapi/api_req_hokyu/charge':
+            if path == '/kcsapi/api_req_hensei/change' or \
+               path == '/kcsapi/api_req_kaisou/slotset' or \
+               path == '/kcsapi/api_req_kaisou/unsetslot_all' or \
+               path == '/kcsapi/api_req_hokyu/charge':
                 self.api_port.emit()

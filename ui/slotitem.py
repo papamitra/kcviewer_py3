@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QApplication, QComboBox, QGridLayout, QLabel,
                              QSizePolicy, QSpinBox, QWidget, QHBoxLayout, QVBoxLayout,
                              QGraphicsScene, QGraphicsView, QStyleOption, QStyle)
 
-from slotitem_parser import PathBuilder
+from .slotitem_parser import PathBuilder
 from math import sin, cos, pi
 
 ns = {'p' : "http://schemas.microsoft.com/winfx/2006/xaml/presentation",

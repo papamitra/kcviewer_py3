@@ -118,8 +118,8 @@ class MainWindow(QMainWindow):
         self.verticalLayout.addLayout(hbox)
 
         self.list_widget = QListWidget(self)
-        self.list_widget.addItem(u'状態')
-        self.list_widget.addItem(u'設定')
+        self.list_widget.addItem('状態')
+        self.list_widget.addItem('設定')
         self.list_widget.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,
                                                    QSizePolicy.MinimumExpanding))
         self.list_widget.setMinimumSize(QSize(100, 100))
@@ -144,7 +144,7 @@ class MainWindow(QMainWindow):
 
         file = QFile(':/ui/stylesheet.css')
         file.open(QFile.ReadOnly)
-        stylesheet = unicode(file.readAll(), encoding='utf8')
+        stylesheet = str(file.readAll(), encoding='utf8')
         self.setStyleSheet(stylesheet)
 
         self.web_view.loadFinished.connect(self.on_load_finish)
@@ -179,7 +179,7 @@ class MainWindow(QMainWindow):
     def toggle_mute(self, clicked):
         if os.name == 'posix':
             import alsaaudio
-            print(alsaaudio.mixers())
+            print((alsaaudio.mixers()))
 
     def adjust_location(self):
         self.setting_page.location_edit.setText(self.web_view.url().toString())
@@ -188,7 +188,7 @@ class MainWindow(QMainWindow):
         swf = self.swf_elm()
         if swf:
             print('adjust_rect')
-            print(swf.geometry())
+            print((swf.geometry()))
             geom = swf.geometry()
 
             game_frame = self.web_view.page().mainFrame().findFirstElement('iframe#game_frame')

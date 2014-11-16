@@ -6,7 +6,7 @@ import pickle
 import re
 import simplejson
 import threading
-import Queue
+import queue
 
 import model
 import utils
@@ -14,7 +14,7 @@ import db
 
 def get_cols(con, table_name):
     cur = con.cursor()
-    cur.execute(u'select * from ' + table_name)
+    cur.execute('select * from ' + table_name)
     return [col[0] for col in cur.description]
 
 class KcsCommand(object):
@@ -76,14 +76,14 @@ class KcsDb(object):
         cls.debug_con = utils.connect_debug_db()
         cls.con = utils.connect_db()
 
-        cls.tables = [r[0] for r in cls.con.execute(u'select name from sqlite_master where type="table";')]
+        cls.tables = [r[0] for r in cls.con.execute('select name from sqlite_master where type="table";')]
         cls.table_cols = {t:get_cols(cls.con, t) for t in cls.tables}
 
     @classmethod
     def debug_out(cls, msgtype, path, json):
         """ insert ApiMessage into debug DB """
 
-        sql = u"insert into msg values (datetime('now'), ?, ? , ?)"
+        sql = "insert into msg values (datetime('now'), ?, ? , ?)"
         cls.debug_con.execute(sql, (path, msgtype, sqlite3.Binary(pickle.dumps(json))))
 
     @classmethod
@@ -91,7 +91,7 @@ class KcsDb(object):
         """ insert json data into table with data converting if needed """
 
         cols = cls.table_cols[table_name]
-        sql = u"""
+        sql = """
         insert or replace into {table_name} ({col_names}) values ({val_holders})
         """.format(table_name  = table_name,
                    col_names   = ','.join(cols),
@@ -104,7 +104,7 @@ class KcsApiThread(threading.Thread):
     def __init__(self, on_dispatch = None):
         super(KcsApiThread, self).__init__()
 
-        self.input_queue = Queue.Queue()
+        self.input_queue = queue.Queue()
         self.on_dispatch = on_dispatch
 
     def stop(self):
@@ -121,7 +121,7 @@ class KcsApiThread(threading.Thread):
             try:
                 cmd.execute()
             except Exception as e:
-                print(type(cmd), e)
+                print((type(cmd), e))
 
             if self.on_dispatch:
                 self.on_dispatch(cmd.dir, cmd.path)
