@@ -27,9 +27,7 @@ def main():
     apithread = KcsApiThread(signal_emitter.dispatch)
     apithread.start()
 
-    browser = kcviewer.KCView(url,
-                              on_response = apithread.on_response,
-                              on_request = apithread.on_request)
+    browser = kcviewer.KCView(url, apithread)
 
     # FIXME
     signal_emitter.api_port.connect(browser.status_page.portstatus.on_status_change)

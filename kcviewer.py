@@ -6,7 +6,7 @@ from PyQt5.QtCore import (Qt, QUrl, pyqtSlot, QSettings, QIODevice, QFile,
 from PyQt5.QtWidgets import (QAction, QApplication, QWidget, QMainWindow)
 from PyQt5.QtNetwork import (QNetworkProxy, QNetworkProxyFactory, QNetworkAccessManager,
                              QSslConfiguration, QSslCertificate, QSsl,
-                             QNetworkDiskCache, QNetworkCookieJar, QNetworkCookie)
+                             QNetworkDiskCache, QNetworkCookieJar, QNetworkCookie, QNetworkRequest)
 from PyQt5.QtWebKitWidgets import QWebView
 from PyQt5 import QtWebKit, QtNetwork
 from PyQt5.QtGui import QDesktopServices
@@ -14,14 +14,15 @@ from PyQt5.QtGui import QDesktopServices
 import simplejson
 import os
 import urlparse
+import re
+from kcsapi import KcsCommand
 from ui.mainwindow import MainWindow
 
 class NetworkAccessManager(QNetworkAccessManager):
-    def __init__(self, parent, on_request, on_response):
+    def __init__(self, parent, apithread):
         super(NetworkAccessManager, self).__init__(parent)
 
-        self.on_request = on_request
-        self.on_response = on_response
+        self.apithread = apithread
 
         self.finished.connect(self.on_finished)
 
@@ -35,12 +36,42 @@ class NetworkAccessManager(QNetworkAccessManager):
             self.setProxy(proxy)
 
     def createRequest(self, op, req, outgoing_data = None):
-        print("createRequest", req.url(), outgoing_data)
+        try:
+            path = req.url().path()
+            print(path)
+
+            content_type =  req.header(QNetworkRequest.ContentTypeHeader)
+            if content_type == u'application/x-www-form-urlencoded':
+                content = '' if outgoing_data is None else str(outgoing_data.peek(10*1000*1000))
+                command = command = KcsCommand.command_table.get((KcsCommand.REQUEST, path), ApiReqUnknown)
+                self.apithread.input_queue.push(command(path, content))
+        except Exception, e:
+            print(e)
+
         return super(NetworkAccessManager, self).createRequest(op, req, outgoing_data)
 
     @pyqtSlot(object)
     def on_finished(self, reply):
-        print(reply)
+        try:
+            path = reply.request().url().path()
+            print('res path: ', path)
+
+            content_type = reply.header(QNetworkRequest.ContentTypeHeader)
+            print('res content_type: ', content_type)
+
+            if content_type == u'application/json':
+                content = '' if outgoing_data is None else str(outgoing_data.peek(10*1000*1000))
+                command = KcsCommand.command_table.get((KcsCommand.RESPONSE, path), ApiResUnknown)
+                self.apithread.input_queue.put(command(path, content))
+
+            elif content_type == u'text/plain':
+                content = '' if outgoing_data is None else str(outgoing_data.peek(10*1000*1000))
+                if 0 == content.index("svdata="):
+                    command = KcsCommand.command_table.get((KcsCommand.RESPONSE, path), ApiResUnknown)
+                    self.apithread.input_queue.put(command(path, content[len("svdata="):]))
+
+        except Exception, e:
+                print(e)
 
 class CookieJar(QNetworkCookieJar):
     def __init__(self):
@@ -70,10 +101,10 @@ class CookieJar(QNetworkCookieJar):
         self.setAllCookies(cookies)
 
 class KCView(MainWindow):
-    def __init__(self, url, on_request, on_response):
+    def __init__(self, url, apithread):
         super(KCView, self).__init__()
 
-        am = NetworkAccessManager(self, on_request, on_response)
+        am = NetworkAccessManager(self, apithread)
         self.web_view.page().setNetworkAccessManager(am)
 
         disk_cache = QNetworkDiskCache()
