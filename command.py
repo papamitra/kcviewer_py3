@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 from kcsapi import KcsDb
 from kcsapi import KcsCommand

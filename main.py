@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtCore import Qt, QUrl, QThread, pyqtSignal, QVariant
