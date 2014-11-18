@@ -81,16 +81,17 @@ class NetworkAccessManager(QNetworkAccessManager):
 
         try:
             path = reply.request().url().path()
-            print(('res path: ', path))
-
             content_type = reply.header(QNetworkRequest.ContentTypeHeader)
-            print(('res content_type: ', content_type))
 
             if re.search('application/json', content_type):
-                self.apithread.input_queue.put(KcsCommand.create_res_command(path, self.reply_content[reply]))
+                print(('res path: ', path))
+                content = self.reply_content[reply]
+                self.apithread.input_queue.put(KcsCommand.create_res_command(path, content))
 
             elif re.search('text/plain', content_type):
-                self.apithread.input_queue.put(KcsCommand.create_res_command(path, self.reply_content[reply][len("svdata="):]))
+                print(('res path: ', path))
+                content = self.reply_content[reply][len("svdata="):]
+                self.apithread.input_queue.put(KcsCommand.create_res_command(path, content))
 
         except Exception as e:
             print(e)
