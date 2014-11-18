@@ -39,11 +39,13 @@ class NetworkAccessManager(QNetworkAccessManager):
     def createRequest(self, op, req, outgoing_data = None):
         try:
             path = req.url().path()
-            print(path)
-
             content_type =  req.header(QNetworkRequest.ContentTypeHeader)
             if content_type == 'application/x-www-form-urlencoded':
-                content = '' if outgoing_data is None else str(outgoing_data.peek(10*1000*1000))
+                print(('req path: ', path))
+                content = ''
+                if outgoing_data is not None:
+                    content = str(outgoing_data.peek(10*1000*1000), encoding='utf-8')
+
                 self.apithread.input_queue.put(KcsCommand.create_req_command(path, content))
         except Exception as e:
             print(e)
