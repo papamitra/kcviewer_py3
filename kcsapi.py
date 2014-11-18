@@ -33,6 +33,16 @@ class KcsCommand(object):
         self.command_table[(self.direction, self.path)] = t
         return t
 
+    @staticmethod
+    def create_res_command(path, content):
+        command_builder = KcsCommand.command_table.get((KcsCommand.RESPONSE, path), ApiResUnknown)
+        return command_builder(path, content)
+
+    @staticmethod
+    def create_req_command(path, content):
+        command_builder = KcsCommand.command_table.get((KcsCommand.REQUEST, path), ApiReqUnknown)
+        return command_builder(path, content)
+
 class ApiReqUnknown(object):
     def __init__(self, path, content):
         self.path = path

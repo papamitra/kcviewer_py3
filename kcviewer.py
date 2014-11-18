@@ -16,6 +16,7 @@ import os
 import urllib.parse
 import re
 from kcsapi import KcsCommand
+import command
 from ui.mainwindow import MainWindow
 
 class NetworkAccessManager(QNetworkAccessManager):
@@ -23,8 +24,6 @@ class NetworkAccessManager(QNetworkAccessManager):
         super(NetworkAccessManager, self).__init__(parent)
 
         self.apithread = apithread
-
-        self.finished.connect(self.on_finished)
 
         proxy_url = os.environ.get('http_proxy')
         if proxy_url:
@@ -35,6 +34,8 @@ class NetworkAccessManager(QNetworkAccessManager):
             proxy.setPort(url.port)
             self.setProxy(proxy)
 
+        self.reply_content = {}
+
     def createRequest(self, op, req, outgoing_data = None):
         try:
             path = req.url().path()
@@ -43,15 +44,39 @@ class NetworkAccessManager(QNetworkAccessManager):
             content_type =  req.header(QNetworkRequest.ContentTypeHeader)
             if content_type == 'application/x-www-form-urlencoded':
                 content = '' if outgoing_data is None else str(outgoing_data.peek(10*1000*1000))
-                command = command = KcsCommand.command_table.get((KcsCommand.REQUEST, path), ApiReqUnknown)
-                self.apithread.input_queue.push(command(path, content))
+                self.apithread.input_queue.put(KcsCommand.create_req_command(path, content))
         except Exception as e:
             print(e)
 
-        return super(NetworkAccessManager, self).createRequest(op, req, outgoing_data)
+        reply = super(NetworkAccessManager, self).createRequest(op, req, outgoing_data)
+        self.reply_content[reply] = ''
+        reply.readyRead.connect(self.on_ready_read)
+        reply.finished.connect(self.on_finished)
+        return reply
 
-    @pyqtSlot(object)
-    def on_finished(self, reply):
+    def _get_content(self, reply):
+        try:
+            path = reply.request().url().path()
+            content_type = reply.header(QNetworkRequest.ContentTypeHeader)
+
+            if re.search('application/json', content_type) or \
+               re.search('text/plain', content_type):
+                content = str(reply.peek(10*1000*1000), encoding='utf-8')
+                self.reply_content[reply] += content
+
+        except Exception as e:
+                print(e)
+
+    @pyqtSlot()
+    def on_ready_read(self):
+        reply = self.sender()
+        self._get_content(reply)
+
+    @pyqtSlot()
+    def on_finished(self):
+        reply = self.sender()
+        self._get_content(reply)
+
         try:
             path = reply.request().url().path()
             print(('res path: ', path))
@@ -59,19 +84,16 @@ class NetworkAccessManager(QNetworkAccessManager):
             content_type = reply.header(QNetworkRequest.ContentTypeHeader)
             print(('res content_type: ', content_type))
 
-            if content_type == 'application/json':
-                content = '' if outgoing_data is None else str(outgoing_data.peek(10*1000*1000))
-                command = KcsCommand.command_table.get((KcsCommand.RESPONSE, path), ApiResUnknown)
-                self.apithread.input_queue.put(command(path, content))
+            if re.search('application/json', content_type):
+                self.apithread.input_queue.put(KcsCommand.create_res_command(path, self.reply_content[reply]))
 
-            elif content_type == 'text/plain':
-                content = '' if outgoing_data is None else str(outgoing_data.peek(10*1000*1000))
-                if 0 == content.index("svdata="):
-                    command = KcsCommand.command_table.get((KcsCommand.RESPONSE, path), ApiResUnknown)
-                    self.apithread.input_queue.put(command(path, content[len("svdata="):]))
+            elif re.search('text/plain', content_type):
+                self.apithread.input_queue.put(KcsCommand.create_res_command(path, self.reply_content[reply][len("svdata="):]))
 
         except Exception as e:
-                print(e)
+            print(e)
+
+        del self.reply_content[reply]
 
 class CookieJar(QNetworkCookieJar):
     def __init__(self):

@@ -1,8 +1,9 @@
 
-from .kcsapi import KcsDb, KcsCommand
+from kcsapi import KcsDb
+from kcsapi import KcsCommand
 import simplejson
 import urllib.parse
-from . import model
+import model
 
 class ApiStart2(object, metaclass=KcsCommand(KcsCommand.RESPONSE, '/kcsapi/api_start2')):
     def __init__(self, path, content):
@@ -23,7 +24,6 @@ class ApiPort(object, metaclass=KcsCommand(KcsCommand.RESPONSE, '/kcsapi/api_por
     def __init__(self, path, content):
         self.path = path
         self._content = content
-
     def execute(self):
         json = simplejson.loads(self._content)
 
