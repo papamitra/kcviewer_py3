@@ -44,7 +44,7 @@ class NetworkAccessManager(QNetworkAccessManager):
                 print(('req path: ', path))
                 content = ''
                 if outgoing_data is not None:
-                    content = str(outgoing_data.peek(10*1000*1000), encoding='utf-8')
+                    content = str(outgoing_data.peek(1024*1024), encoding='utf-8')
 
                 self.apithread.input_queue.put(KcsCommand.create_req_command(path, content))
         except Exception as e:
@@ -63,7 +63,7 @@ class NetworkAccessManager(QNetworkAccessManager):
 
             if re.search('application/json', content_type) or \
                re.search('text/plain', content_type):
-                content = str(reply.peek(10*1000*1000), encoding='utf-8')
+                content = str(reply.peek(reply.bytesAvailable()), encoding='utf-8')
                 self.reply_content[reply] += content
 
         except Exception as e:
