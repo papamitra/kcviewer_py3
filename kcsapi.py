@@ -142,6 +142,6 @@ def parse_debug_db(dbname = None, where = None):
     con = utils.connect_debug_db(dbname)
     c = con.cursor()
     c.execute('select * from msg' + (where if where else ''))
-    debug_data = [(row[0], row[1], row[2], pickle.loads(str(row[3]))) for row in c]
+    debug_data = [(row[0], row[1], row[2], pickle.loads(row[3])) for row in c]
     con.close()
     return debug_data
