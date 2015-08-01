@@ -46,7 +46,7 @@ class ApiReqUnknown(object):
     def __init__(self, path, content):
         self.path = path
         self.dir = KcsCommand.REQUEST
-        self._cntent = content
+        self._content = content
 
     def execute(self):
         try:
@@ -54,13 +54,14 @@ class ApiReqUnknown(object):
         except Exception as e:
             return
 
-        KcsDb.debug_out(KcsCommand.REQUEST, self.path, request)
+        # for debug
+        #KcsDb.debug_out(KcsCommand.REQUEST, self.path, request)
 
 class ApiResUnknown(object):
     def __init__(self, path, content):
         self.path = path
         self.dir = KcsCommand.RESPONSE
-        self._cntent = content
+        self._content = content
 
     def execute(self):
         try:
@@ -68,7 +69,8 @@ class ApiResUnknown(object):
         except Exception as e:
             return
 
-        KcsDb.debug_out(KcsCommand.RESPONSE, self.path, json)
+        # for debug
+        #KcsDb.debug_out(KcsCommand.RESPONSE, self.path, json)
 
 class KcsDb(object):
     con = None

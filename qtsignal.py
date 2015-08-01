@@ -14,7 +14,8 @@ class SignalEmitter(QObject):
             if path == '/kcsapi/api_start2':
                 self.api_start2.emit()
             elif path == '/kcsapi/api_port/port' or \
-                 path == '/kcsapi/api_get_member/ship2':
+                 path == '/kcsapi/api_get_member/ship2' or \
+                 path == '/kcsapi/api_get_member/ship_deck':
                 self.api_port.emit()
             elif path == '/kcsapi/api_get_member/slot_item':
                 self.slot_item.emit()

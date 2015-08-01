@@ -61,6 +61,19 @@ class ApiShip2(object, metaclass=KcsCommand(KcsCommand.RESPONSE, '/kcsapi/api_ge
         with KcsDb.con:
             KcsDb.insert_or_replace('api_ship', json['api_data'])
 
+class ApiShipDeck(object, metaclass=KcsCommand(KcsCommand.RESPONSE, '/kcsapi/api_get_member/ship_deck')):
+    def __init__(self, path, content):
+        self.path = path
+        self._content = content
+
+    def execute(self):
+        json = simplejson.loads(self._content)
+
+        KcsDb.debug_out(self.dir, self.path, json)
+
+        with KcsDb.con:
+            KcsDb.insert_or_replace('api_ship', json['api_data']['api_ship_data'])
+
 
 class ApiReqHensei(object, metaclass=KcsCommand(KcsCommand.REQUEST, '/kcsapi/api_req_hensei/change')):
     def __init__(self, path, content):
