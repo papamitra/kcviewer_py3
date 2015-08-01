@@ -96,7 +96,7 @@ class KcsDb(object):
         cls.debug_con.execute(sql, (path, msgtype, sqlite3.Binary(pickle.dumps(json))))
 
     @classmethod
-    def insert_or_replace(cls, table_name, data, conv={}):
+    def insert_or_replace(cls, table_name, data):
         """ insert json data into table with data converting if needed """
 
         cols = cls.table_cols[table_name]
@@ -107,7 +107,7 @@ class KcsDb(object):
                    val_holders = ','.join(['?'] * len(cols)))
 
         cls.con.executemany(sql,
-                             [[d[c] if not c in conv else conv[c](d) for c in cols] for d in data])
+                             [[d.get(c, None) for c in cols] for d in data])
 
 class KcsApiThread(threading.Thread):
     def __init__(self, on_dispatch = None):
