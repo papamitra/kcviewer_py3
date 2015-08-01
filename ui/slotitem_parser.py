@@ -27,7 +27,7 @@ def cmd_parser(data):
 
 def point_parser(data):
     nump = r'(-?[0-9]+\.[0-9]*|-?\.[0-9]+|-?[0-9]+)'
-    p = r'^ *{nump}\s*,?\s*{nump}'.format(nump=nump)
+    p = r'^ *,? *{nump}\s*,?\s*{nump}'.format(nump=nump)
     m = re.match(p, data)
     if m is None:
         raise ParseError('point_parser', data)
@@ -39,6 +39,11 @@ from PyQt5.QtGui import (QBrush, QColor, QFont, QLinearGradient, QPainter,
 class PathBuilder(object):
     def __init__(self):
         super(PathBuilder, self).__init__()
+
+    def cmd_f(self, path, data):
+        #FIXME: fill setting
+        (n, data) = num_parser(data)
+        return data
 
     def cmd_m(self, path, data):
         pos = path.currentPosition()
@@ -124,7 +129,8 @@ class PathBuilder(object):
     def parse(self, data):
         data = data.replace('\r\n', ' ')
 
-        cmds = { 'm': self.cmd_m,
+        cmds = { 'F': self.cmd_f,
+                 'm': self.cmd_m,
                  'M': self.cmd_M,
                  'l': self.cmd_l,
                  'L': self.cmd_L,

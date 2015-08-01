@@ -215,7 +215,7 @@ class SlotIcon(QGraphicsScene):
 # Don't call before QApplication() initialized.
 def create_sloticontable():
     table = {}
-    tree = ET.parse('ui/SlotItemIcon.xml')
+    tree = ET.parse('ui/Generic.SlotItemIcon.xaml')
     triggers = tree.findall(r'.//p:Trigger', namespaces=ns)
 
     for trg in triggers:

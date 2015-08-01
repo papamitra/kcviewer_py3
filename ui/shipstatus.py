@@ -312,7 +312,7 @@ class ShipSlot(QWidget):
                   9: 'ReconPlane',
                   10:'ReconSeaplane',
                   11:'Rader',
-                  12:'AAshell',
+                  12:'AAShell',
                   13:'APShell',
                   14:'DamageControl',
                   15:'AAGun',
@@ -322,14 +322,19 @@ class ShipSlot(QWidget):
                   19:'EngineImprovement',
                   20:'LandingCraft',
                   21:'Autogyro',
-                  22:'AntillerySpotter',
+                  22:'ArtillerySpotter',
                   23:'AntiTorpedoBulge',
                   24:'SearchLight',
                   25:'DrumCanister',
                   26:'Facility',
                   27:'Flare',
                   28:'FleetCommandFacility',
-                  29:'MaintenancePersonnel'}
+                  29:'MaintenancePersonnel',
+                  30:'AntiAircraftFireDirector',
+                  31:'RocketLauncher',
+                  32:'SurfaceShipPersonnel',
+                  33:'FlyingBoat'
+    }
 
     def __init__(self,parent):
         super(ShipSlot, self).__init__(parent)
