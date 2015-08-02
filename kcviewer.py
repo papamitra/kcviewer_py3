@@ -89,8 +89,9 @@ class NetworkAccessManager(QNetworkAccessManager):
 
             elif re.search('text/plain', content_type):
                 print(('res path: ', path))
-                content = self.reply_content[reply][len("svdata="):]
-                self.apithread.input_queue.put(KcsCommand.create_res_command(path, content))
+                # FIXME split('svdata=')
+                for content in self.reply_content[reply].split('svdata=')[1:]:
+                    self.apithread.input_queue.put(KcsCommand.create_res_command(path, content))
 
         except Exception as e:
             print(e)
