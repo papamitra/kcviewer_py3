@@ -70,7 +70,7 @@ class ApiResUnknown(object):
             return
 
         # for debug
-        #KcsDb.debug_out(KcsCommand.RESPONSE, self.path, json)
+        #KcsDb.debug_out(KcsCommand.RESPONSE, self.path, json_data)
 
 class KcsDb(object):
     con = None
