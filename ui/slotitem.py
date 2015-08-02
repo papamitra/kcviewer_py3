@@ -2,7 +2,7 @@
 
 import xml.etree.ElementTree as ET
 
-from PyQt5.QtCore import QSize, Qt, QRectF, QRect
+from PyQt5.QtCore import QSize, Qt, QFile, QRectF, QRect
 from PyQt5.QtGui import (QBrush, QColor, QFont, QLinearGradient, QPainter,
                          QPainterPath, QPalette, QPen, QTransform, QPolygonF)
 from PyQt5.QtWidgets import (QApplication, QComboBox, QGridLayout, QLabel,
@@ -215,7 +215,10 @@ class SlotIcon(QGraphicsScene):
 # Don't call before QApplication() initialized.
 def create_sloticontable():
     table = {}
-    tree = ET.parse('ui/Generic.SlotItemIcon.xaml')
+    file = QFile(':/ui/Generic.SlotItemIcon.xaml')
+    file.open(QFile.ReadOnly)
+    text = str(file.readAll(), encoding='utf8')
+    tree = ET.fromstring(text)
     triggers = tree.findall(r'.//p:Trigger', namespaces=ns)
 
     for trg in triggers:

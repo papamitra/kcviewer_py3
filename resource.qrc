@@ -1,11 +1,12 @@
 <!DOCTYPE RCC><RCC version="1.0">
-<qresource>
+  <qresource>
     <file>ui/stylesheet.css</file>
+    <file>ui/Generic.SlotItemIcon.xaml</file>
     <file>icons/photo.png</file>
     <file>icons/mute.png</file>
     <file>icons/volume.png</file>
     <file>icons/photo.svg</file>
     <file>icons/mute.svg</file>
     <file>icons/volume.svg</file>
-</qresource>
+  </qresource>
 </RCC>
