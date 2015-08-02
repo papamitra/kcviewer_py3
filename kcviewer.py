@@ -11,7 +11,6 @@ from PyQt5.QtWebKitWidgets import QWebView
 from PyQt5 import QtWebKit, QtNetwork
 from PyQt5.QtGui import QDesktopServices
 
-import simplejson
 import os
 import urllib.parse
 import re

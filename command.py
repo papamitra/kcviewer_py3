@@ -2,7 +2,7 @@
 
 from kcsapi import KcsDb
 from kcsapi import KcsCommand
-import simplejson
+import json
 import urllib.parse
 import model
 
@@ -12,13 +12,13 @@ class ApiStart2(object, metaclass=KcsCommand(KcsCommand.RESPONSE, '/kcsapi/api_s
         self._content = content
 
     def execute(self):
-        json = simplejson.loads(self._content)
+        json_data = json.loads(self._content)
 
-        KcsDb.debug_out(self.dir, self.path, json)
+        KcsDb.debug_out(self.dir, self.path, json_data)
 
         with KcsDb.con:
-            KcsDb.insert_or_replace('api_mst_ship', json['api_data']['api_mst_ship'])
-            KcsDb.insert_or_replace('api_mst_slotitem', json['api_data']['api_mst_slotitem'])
+            KcsDb.insert_or_replace('api_mst_ship', json_data['api_data']['api_mst_ship'])
+            KcsDb.insert_or_replace('api_mst_slotitem', json_data['api_data']['api_mst_slotitem'])
 
 
 class ApiPort(object, metaclass=KcsCommand(KcsCommand.RESPONSE, '/kcsapi/api_port/port')):
@@ -26,13 +26,13 @@ class ApiPort(object, metaclass=KcsCommand(KcsCommand.RESPONSE, '/kcsapi/api_por
         self.path = path
         self._content = content
     def execute(self):
-        json = simplejson.loads(self._content)
+        json_data = json.loads(self._content)
 
-        KcsDb.debug_out(self.dir, self.path, json)
+        KcsDb.debug_out(self.dir, self.path, json_data)
 
         with KcsDb.con:
-            KcsDb.insert_or_replace('api_ship', json['api_data']['api_ship'])
-            KcsDb.insert_or_replace('api_deck_port', json['api_data']['api_deck_port'])
+            KcsDb.insert_or_replace('api_ship', json_data['api_data']['api_ship'])
+            KcsDb.insert_or_replace('api_deck_port', json_data['api_data']['api_deck_port'])
 
 
 class ApiSlotItem(object, metaclass=KcsCommand(KcsCommand.RESPONSE, '/kcsapi/api_get_member/slot_item')):
@@ -41,12 +41,12 @@ class ApiSlotItem(object, metaclass=KcsCommand(KcsCommand.RESPONSE, '/kcsapi/api
         self._content = content
 
     def execute(self):
-        json = simplejson.loads(self._content)
+        json_data = json.loads(self._content)
 
-        KcsDb.debug_out(self.dir, self.path, json)
+        KcsDb.debug_out(self.dir, self.path, json_data)
 
         with KcsDb.con:
-            KcsDb.insert_or_replace('api_slotitem', json['api_data'])
+            KcsDb.insert_or_replace('api_slotitem', json_data['api_data'])
 
 class ApiShip2(object, metaclass=KcsCommand(KcsCommand.RESPONSE, '/kcsapi/api_get_member/ship2')):
     def __init__(self, path, content):
@@ -54,12 +54,12 @@ class ApiShip2(object, metaclass=KcsCommand(KcsCommand.RESPONSE, '/kcsapi/api_ge
         self._content = content
 
     def execute(self):
-        json = simplejson.loads(self._content)
+        json_data = json.loads(self._content)
 
-        KcsDb.debug_out(self.dir, self.path, json)
+        KcsDb.debug_out(self.dir, self.path, json_data)
 
         with KcsDb.con:
-            KcsDb.insert_or_replace('api_ship', json['api_data'])
+            KcsDb.insert_or_replace('api_ship', json_data['api_data'])
 
 class ApiShipDeck(object, metaclass=KcsCommand(KcsCommand.RESPONSE, '/kcsapi/api_get_member/ship_deck')):
     def __init__(self, path, content):
@@ -67,12 +67,12 @@ class ApiShipDeck(object, metaclass=KcsCommand(KcsCommand.RESPONSE, '/kcsapi/api
         self._content = content
 
     def execute(self):
-        json = simplejson.loads(self._content)
+        json_data = json.loads(self._content)
 
-        KcsDb.debug_out(self.dir, self.path, json)
+        KcsDb.debug_out(self.dir, self.path, json_data)
 
         with KcsDb.con:
-            KcsDb.insert_or_replace('api_ship', json['api_data']['api_ship_data'])
+            KcsDb.insert_or_replace('api_ship', json_data['api_data']['api_ship_data'])
 
 
 class ApiReqHensei(object, metaclass=KcsCommand(KcsCommand.REQUEST, '/kcsapi/api_req_hensei/change')):

@@ -3,7 +3,7 @@
 import sqlite3
 import pickle
 import re
-import simplejson
+import json
 import threading
 import queue
 
@@ -65,7 +65,7 @@ class ApiResUnknown(object):
 
     def execute(self):
         try:
-            json = simplejson.loads(self._content)
+            json_data = json.loads(self._content)
         except Exception as e:
             return
 
@@ -91,11 +91,11 @@ class KcsDb(object):
         cls.table_cols = {t:get_cols(cls.con, t) for t in cls.tables}
 
     @classmethod
-    def debug_out(cls, msgtype, path, json):
+    def debug_out(cls, msgtype, path, json_data):
         """ insert ApiMessage into debug DB """
 
         sql = "insert into msg values (datetime('now'), ?, ? , ?)"
-        cls.debug_con.execute(sql, (path, msgtype, sqlite3.Binary(pickle.dumps(json))))
+        cls.debug_con.execute(sql, (path, msgtype, sqlite3.Binary(pickle.dumps(json_data))))
 
     @classmethod
     def insert_or_replace(cls, table_name, data):
