@@ -167,7 +167,7 @@ class MainWindow(QMainWindow):
         now = datetime.datetime.now()
         pic_location = QStandardPaths.writableLocation(QStandardPaths.PicturesLocation)
 
-        swf = self.swf.elm()
+        swf = self.swf_elm()
         if swf:
             image = QImage(swf.geometry().size(), QImage.Format_ARGB32)
             painter = QPainter(image)
